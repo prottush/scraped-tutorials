@@ -8,7 +8,7 @@ const port = process.env.PORT || 8080;
 
 
 
-app.get('/pbp', (req, res) => {
+app.get('/pbp-shotchart', (req, res) => {
   req.query.color1 === 'red'  // true
   req.query.color2 === 'blue' // true
   const mediumArticles = new Promise((resolve, reject) => {
