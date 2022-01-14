@@ -1,6 +1,6 @@
 const express = require('express')
 
-const scraper = require('./utils/scraper')
+const scraper = require('./scraper')
 const app = express()
 
 
@@ -33,4 +33,5 @@ app.get('/pbp', (req, res) => {
     .catch(err => res.status(500).send(err))
 })
 
-app.listen(process.env.PORT || 3000)
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Server running on ${port}, http://localhost:${port}`));
