@@ -18,9 +18,9 @@ app.get('/pbp', (req, res) => {
   })
 
 
-  Promise.all([mediumArticles])
+  Promise.all(mediumArticles)
     .then(data => {
-      res.json(data[0])
+      res.json(data)
     })
     .catch(err => res.status(500).send(err))
 })
