@@ -3,12 +3,14 @@ const express = require('express')
 const scraper = require('./utils/scraper')
 const app = express()
 
-app.set('view engine', 'pug')
 
-app.get('/', (req, res) => {
+
+app.get('/pbp', (req, res) => {
+  req.query.color1 === 'red'  // true
+  req.query.color2 === 'blue' // true
   const mediumArticles = new Promise((resolve, reject) => {
     scraper
-      .scrapeMedium()
+      .scrapeMedium(req.query.fname, req.query.lname)
       .then(data => {
         resolve(data)
       })
@@ -26,7 +28,7 @@ app.get('/', (req, res) => {
 
   Promise.all([mediumArticles, youtubeVideos])
     .then(data => {
-      res.render('index', { data: { articles: data[0], videos: data[1] } })
+      res.json(data[0])
     })
     .catch(err => res.status(500).send(err))
 })
