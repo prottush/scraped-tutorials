@@ -17,16 +17,8 @@ app.get('/pbp', (req, res) => {
       .catch(err => reject('Medium scrape failed'))
   })
 
-  const youtubeVideos = new Promise((resolve, reject) => {
-    scraper
-      .scrapeYoutube()
-      .then(data => {
-        resolve(data)
-      })
-      .catch(err => reject('YouTube scrape failed'))
-  })
 
-  Promise.all([mediumArticles, youtubeVideos])
+  Promise.all([mediumArticles])
     .then(data => {
       res.json(data[0])
     })
