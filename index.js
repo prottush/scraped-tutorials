@@ -2,6 +2,9 @@ const express = require('express')
 
 const scraper = require('./scraper')
 const app = express()
+const ip = process.env.IP || '0.0.0.0';
+const port = process.env.PORT || 8080;
+
 
 
 
@@ -25,5 +28,5 @@ app.get('/pbp', (req, res) => {
     .catch(err => res.status(500).send(err))
 })
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running on ${port}, http://localhost:${port}`));
+
+app.listen(port, ip);

@@ -508,7 +508,7 @@ const players = {
 
 const scrapeMedium = async (fname, lname) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
     const page = await browser.newPage();
     const pID = players[fname + " " + lname];
     await page.goto(
