@@ -533,6 +533,33 @@ const scrapeMedium = async (fname, lname) => {
   }
 };
 
+
+const scrapePass= async (fname, lname) => {
+  try {
+    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
+    const page = await browser.newPage();
+    const pID = players[fname + " " + lname];
+    await page.goto(
+      "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId="+pID+"&EntityType=Player&Table=Turnovers&StatType=Totals"
+    );
+    await page.waitForSelector(".line-numbers", { timeout: 10000 });
+
+    const body = await page.evaluate(() => {
+      return document.querySelector("body").innerHTML;
+    });
+    // const link = body.split('href="data:text/csv');
+
+    const newbody = body.split('href="data:text/csv,')[1].split('">');
+
+    const csv = decodeURIComponent(newbody[0]);
+    const json = Papa.parse(csv);
+    
+    await browser.close();
+    return json;
+  } catch (error) {
+    console.log(error);
+  }
+};
 const scrapeYoutube = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -554,4 +581,5 @@ const scrapeYoutube = async () => {
 };
 
 module.exports.scrapeMedium = scrapeMedium;
+module.exports.scrapePass = scrapePass;
 module.exports.scrapeYoutube = scrapeYoutube;
