@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer");
-const Papa = require('papaparse');
+const Papa = require("papaparse");
 
 const players = {
   "James Harden": "201935",
@@ -507,18 +507,35 @@ const players = {
   "Moritz Wagner": "1629021",
 };
 
-
-
-
 const scrapeMedium = async (fname, lname) => {
   try {
-    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
-    const page = await browser.newPage();
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"],
+    });
+
+    let page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      if (
+        req.resourceType() == "stylesheet" ||
+        req.resourceType() == "font" ||
+        req.resourceType() == "image"
+      ) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
     const pID = players[fname + " " + lname];
     await page.goto(
-      "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId="+pID+"&EntityType=Player&Table=Shooting&StatType=Totals"
+      "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
+        pID +
+        "&EntityType=Player&Table=Shooting&StatType=Totals"
     );
-    await page.waitForSelector(".line-numbers", { timeout: 10000 });
+    await page.waitForSelector(".line-numbers", { timeout: 20000 });
 
     const body = await page.evaluate(() => {
       return document.querySelector("body").innerHTML;
@@ -529,23 +546,44 @@ const scrapeMedium = async (fname, lname) => {
 
     const csv = decodeURIComponent(newbody[0]);
     const json = Papa.parse(csv);
-    
+
+    await page.close();
     await browser.close();
     return json;
   } catch (error) {
     console.log(error);
+
+    await page.close();
     await browser.close();
   }
 };
 
-
-const scrapePass= async (fname, lname) => {
+const scrapePass = async (fname, lname) => {
   try {
-    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
-    const page = await browser.newPage();
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"],
+    });
+    let page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      if (
+        req.resourceType() == "stylesheet" ||
+        req.resourceType() == "font" ||
+        req.resourceType() == "image"
+      ) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
     const pID = players[fname + " " + lname];
     await page.goto(
-      "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId="+pID+"&EntityType=Player&Table=Turnovers&StatType=Totals"
+      "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
+        pID +
+        "&EntityType=Player&Table=Turnovers&StatType=Totals"
     );
     await page.waitForSelector(".line-numbers", { timeout: 10000 });
 
@@ -558,11 +596,13 @@ const scrapePass= async (fname, lname) => {
 
     const csv = decodeURIComponent(newbody[0]);
     const json = Papa.parse(csv);
-    
+    await page.close();``
     await browser.close();
+
     return json;
   } catch (error) {
     console.log(error);
+    await page.close();
     await browser.close();
   }
 };
