@@ -558,6 +558,7 @@ const scrapePass= async (fname, lname) => {
     return json;
   } catch (error) {
     console.log(error);
+    await browser.close();
   }
 };
 const scrapeYoutube = async () => {
