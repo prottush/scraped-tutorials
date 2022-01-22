@@ -507,6 +507,39 @@ const players = {
   "Moritz Wagner": "1629021",
 };
 
+const teams = {
+  "MIN": "1610612750",
+  "CHA": "1610612766",
+  "OKC": "1610612760",
+  "BOS": "1610612738",
+  "MIL": "1610612749",
+  "CLE": "1610612739",
+  "HOU": "1610612745",
+  "MIA": "1610612748",
+  "NYK": "1610612752",
+  "POR": "1610612757",
+  "DEN": "1610612743",
+  "ATL": "1610612737",
+  "TOR": "1610612761",
+  "WAS": "1610612764",
+  "SAC": "1610612758",
+  "NOP": "1610612740",
+  "PHI": "1610612755",
+  "BKN": "1610612751",
+  "SAS": "1610612759",
+  "UTA": "1610612762",
+  "PHX": "1610612756",
+  "ORL": "1610612753",
+  "CHI": "1610612741",
+  "DET": "1610612765",
+  "DAL": "1610612742",
+  "LAC": "1610612746",
+  "MEM": "1610612763",
+  "LAL": "1610612747",
+  "IND": "1610612754",
+  "GSW": "1610612744"
+};
+
 const scrapeMedium = async (fname, lname) => {
   try {
     const browser = await puppeteer.launch({
@@ -606,6 +639,57 @@ const scrapePass = async (fname, lname) => {
     await browser.close();
   }
 };
+
+const scrapeTShot = async (team) => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"],
+    });
+
+    let page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      if (
+        req.resourceType() == "stylesheet" ||
+        req.resourceType() == "font" ||
+        req.resourceType() == "image"
+      ) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
+    const tID = teams[team + ""];
+    await page.goto(
+      "https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" + tID + "&EntityType=Team&Table=Shooting&StatType=Totals"
+    );
+    await page.waitForSelector(".line-numbers", { timeout: 20000 });
+    console.log("https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" + tID + "&EntityType=Team&Table=Shooting&StatType=Totals");
+
+    const body = await page.evaluate(() => {
+      return document.querySelector("body").innerHTML;
+    });
+    // const link = body.split('href="data:text/csv');
+
+    const newbody = body.split('href="data:text/csv,')[1].split('">');
+
+    const csv = decodeURIComponent(newbody[0]);
+    const json = Papa.parse(csv);
+
+    await page.close();
+    await browser.close();
+    return json;
+  } catch (error) {
+    console.log(error);
+
+    await page.close();
+    await browser.close();
+  }
+};
+
 const scrapeYoutube = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -628,4 +712,5 @@ const scrapeYoutube = async () => {
 
 module.exports.scrapeMedium = scrapeMedium;
 module.exports.scrapePass = scrapePass;
+module.exports.scrapeTShot = scrapeTShot;
 module.exports.scrapeYoutube = scrapeYoutube;
