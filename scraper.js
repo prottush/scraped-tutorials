@@ -690,6 +690,56 @@ const scrapeTShot = async (team) => {
   }
 };
 
+const scrapeTTo = async (team) => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"],
+    });
+
+    let page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      if (
+        req.resourceType() == "stylesheet" ||
+        req.resourceType() == "font" ||
+        req.resourceType() == "image"
+      ) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
+    const tID = teams[team + ""];
+    await page.goto(
+      "https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" + tID + "&EntityType=Team&Table=Turnovers&StatType=Totals"
+    );
+    await page.waitForSelector(".line-numbers", { timeout: 20000 });
+   
+
+    const body = await page.evaluate(() => {
+      return document.querySelector("body").innerHTML;
+    });
+    // const link = body.split('href="data:text/csv');
+
+    const newbody = body.split('href="data:text/csv,')[1].split('">');
+
+    const csv = decodeURIComponent(newbody[0]);
+    const json = Papa.parse(csv);
+
+    await page.close();
+    await browser.close();
+    return json;
+  } catch (error) {
+    console.log(error);
+
+    await page.close();
+    await browser.close();
+  }
+};
+
 const scrapeYoutube = async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -713,4 +763,5 @@ const scrapeYoutube = async () => {
 module.exports.scrapeMedium = scrapeMedium;
 module.exports.scrapePass = scrapePass;
 module.exports.scrapeTShot = scrapeTShot;
+module.exports.scrapeTTo = scrapeTTo;
 module.exports.scrapeYoutube = scrapeYoutube;
