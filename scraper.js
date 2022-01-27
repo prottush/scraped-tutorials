@@ -510,7 +510,60 @@ const redis = require("redis");
 const { json } = require("express");
 const cron = require("node-cron");
 
+const names = [
+  "LeBron_James",
+  "Stephen_Curry",
+  "Kevin_Durant",
+  "Giannis_Antetokounmpo",
+  "James_Harden",
+  "Nikola_Jokic",
+  "Joel_Embiid",
+  "Anthony_Davis",
+  "Luka_Doncic",
+  "Damian_Lillard",
+  "Devin_Booker",
+  "Chris_Paul",
+  "Jayson_Tatum",
+  "Bradley_Beal",
+  "Khris_Middleton",
+  "Jimmy_Butler",
+  "Ja_Morant",
+  "Trae_Young",
+  "Kyrie_Irving",
+  "Shai_Gilgeous-Alexander",
+  "Rudy_Gobert",
+  "Paul_George",
+  "Jaylen_Brown",
+  "Russell_Westbrook",
+  "Draymond_Green",
+  "LaMelo_Ball",
+  "Zach_LaVine",
+  "Klay_Thompson",
+  "DeMar_DeRozan",
+  "Kawhi_Leonard",
+  "Deandre_Ayton",
+  "Brandon_Ingram",
+  "Joe_Harris",
+  "Zion_Williamson",
+  "Karl-Anthony_Towns",
+  "Jakob_Poeltl",
+  "Kristaps_Porzingis",
+  "Malik_Monk",
+  "Bam_Adebayo",
+  "Jrue_Holiday",
+  "Domantas_Sabonis",
+  "Andrew_Wiggins",
+  "Tyler_Herro",
+  "Jarrett_Allen",
+  "Tobias_Harris",
+  "Buddy_Hield",
+  "Tyrese_Haliburton",
+  "Spencer_Dinwiddie",
+  "Matisse_Thybulle",
+  "Alex_Caruso",
+];
 (async () => {
+
   const client = redis.createClient({
     url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
     socket: {
@@ -518,7 +571,7 @@ const cron = require("node-cron");
       rejectUnauthorized: false,
     },
   });
-
+  console.log("Initiating scheduled PBP scrape for " + names.length + " players...\n");
   client.on("error", (err) => console.log("Redis Client Error", err));
 
   await client.connect();
@@ -568,55 +621,7 @@ const teams = {
 };
 
 const scrapeSched = async (fname, lname) => {
-  const names = [
-    "LeBron_James",
-    "Stephen_Curry",
-    "Kevin_Durant",
-    "Giannis_Antetokounmpo",
-    "James_Harden",
-    "Nikola_Jokic",
-    "Joel_Embiid",
-    "Anthony_Davis",
-    "Luka_Doncic",
-    "Damian_Lillard",
-    "Devin_Booker",
-    "Chris_Paul",
-    "Jayson_Tatum",
-    "Bradley_Beal",
-    "Jimmy_Butler",
-    "Ja_Morant",
-    "Trae_Young",
-    "Kyrie_Irving",
-    "Rudy_Gobert",
-    "Paul_George",
-    "Jaylen_Brown",
-    "Russell_Westbrook",
-    "Draymond_Green",
-    "LaMelo_Ball",
-    "Zach_LaVine",
-    "Klay_Thompson",
-    "DeMar_DeRozan",
-    "Kawhi_Leonard",
-    "Brandon_Ingram",
-    "Joe_Harris",
-    "Zion_Williamson",
-    "Karl-Anthony_Towns",
-    "Jakob Poeltl",
-    "Kristaps_Porzingis",
-    "Malik_Monk",
-    "Bam_Adebayo",
-    "Jrue_Holiday",
-    "Domantas Sabonis",
-    "Andrew Wiggins",
-    "Tyler Herro",
-    "Jarrett_Allen",
-    "Tobias_Harris",
-    "Buddy_Hield",
-    "Tyrese_Haliburton",
-    "Spencer_Dinwiddie",
-    "Matisse_Thybulle",
-    "Alex_Caruso",
-  ];
+ 
   const cache = [];
   try {
     const browser = await puppeteer.launch({
@@ -659,7 +664,9 @@ const scrapeSched = async (fname, lname) => {
       const json = Papa.parse(csv);
       const dat = JSON.stringify(json);
       cache.push({ name: names[i], dat: dat });
-      console.log(names[i] + " completed size is: " + dat.length);
+      console.log(names[i].toUpperCase() + " PBP scrape completed and cached! Go Bron! \nPayload size is: " + dat.length + " \nUrl Scraped: " + "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
+      pID +
+      "&EntityType=Player&Table=Shooting&StatType=Totals\n");
       await page.close();
     }
     await browser.close();
