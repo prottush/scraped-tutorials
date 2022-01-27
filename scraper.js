@@ -510,7 +510,7 @@ const players = {
 const redis = require("redis");
 const { json } = require("express");
 const cron = require("node-cron");
-=
+
   (async () => {
     const client = redis.createClient({
       url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
