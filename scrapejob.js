@@ -533,6 +533,7 @@ const names = [
   "Shai_Gilgeous-Alexander",
   "Rudy_Gobert",
   "Paul_George",
+  "Luguentz_Dort",
   "Jaylen_Brown",
   "Russell_Westbrook",
   "Draymond_Green",
