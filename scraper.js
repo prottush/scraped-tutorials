@@ -544,64 +544,6 @@ const teams = {
   GSW: "1610612744",
 };
 
-const scrapeSched = async (fname, lname) => {
- 
-  const cache = [];
-  try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox"],
-    });
-
-    for (let i = 0; i < names.length; i++) {
-      let page = await browser.newPage();
-      await page.setViewport({ width: 1920, height: 1080 });
-      await page.setRequestInterception(true);
-      page.on("request", (req) => {
-        if (
-          req.resourceType() == "stylesheet" ||
-          req.resourceType() == "font" ||
-          req.resourceType() == "image"
-        ) {
-          req.abort();
-        } else {
-          req.continue();
-        }
-      });
-      const name = names[i].split("_");
-      const pID = players[name[0] + " " + name[1]];
-      await page.goto(
-        "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
-          pID +
-          "&EntityType=Player&Table=Shooting&StatType=Totals"
-      );
-      await page.waitForSelector(".line-numbers", { timeout: 20000 });
-
-      const body = await page.evaluate(() => {
-        return document.querySelector("body").innerHTML;
-      });
-      // const link = body.split('href="data:text/csv');
-
-      const newbody = body.split('href="data:text/csv,')[1].split('">');
-
-      const csv = decodeURIComponent(newbody[0]);
-      const json = Papa.parse(csv);
-      const dat = JSON.stringify(json);
-      cache.push({ name: names[i], dat: dat });
-      console.log(names[i].toUpperCase() + " PBP scrape completed and cached! Go Bron! \nPayload size is: " + dat.length + " \nUrl Scraped: " + "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
-      pID +
-      "&EntityType=Player&Table=Shooting&StatType=Totals\n");
-      await page.close();
-    }
-    await browser.close();
-    return cache;
-  } catch (error) {
-    console.log(error);
-
-    await page.close();
-    await browser.close();
-  }
-};
 
 const scrapeMedium = async (fname, lname) => {
   const client = redis.createClient({
@@ -617,7 +559,7 @@ const scrapeMedium = async (fname, lname) => {
   await client.connect();
 
   let json = await client.get(fname + "_" + lname);
-
+  await client.disconnect();
   if (!json) {
     try {
       const browser = await puppeteer.launch({
