@@ -559,7 +559,7 @@ const scrapeMedium = async (fname, lname) => {
   await client.connect();
 
   let json = await client.get(fname + "_" + lname);
-  await client.disconnect();
+  
   if (!json) {
     try {
       const browser = await puppeteer.launch({
@@ -602,8 +602,9 @@ const scrapeMedium = async (fname, lname) => {
       client.set(fname + "_" + lname, JSON.stringify(json));
       
       await page.close();
-      await client.disconnect();
+      
       await browser.close();
+      await client.disconnect();
       return json;
     } catch (error) {
       console.log(error);
@@ -612,8 +613,9 @@ const scrapeMedium = async (fname, lname) => {
       await browser.close();
     }
   } else {
-    return JSON.parse(json);
     await client.disconnect();
+    return JSON.parse(json);
+    
   }
 };
 
