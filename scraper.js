@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer");
 const Papa = require("papaparse");
-
 const players = {
   "James Harden": "201935",
   "Andrew Wiggins": "203952",
@@ -511,30 +510,29 @@ const redis = require("redis");
 const { json } = require("express");
 const cron = require("node-cron");
 
-  (async () => {
-    const client = redis.createClient({
-      url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
-      socket: {
-        tls: true,
-        rejectUnauthorized: false,
-      },
-    });
+(async () => {
+  const client = redis.createClient({
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    },
+  });
 
-    client.on("error", (err) => console.log("Redis Client Error", err));
+  client.on("error", (err) => console.log("Redis Client Error", err));
 
-    await client.connect();
+  await client.connect();
 
-    const mediumArticles = new Promise((resolve, reject) => {
-      scrapeSched("", "")
-        .then((data) => {
-          for (let i = 0; i < data.length; i++) {
-            client.set(data[i].name, data[i].dat);
-          }
-        })
-        .catch((err) => reject("Medium scrape failed"));
-    });
-  })();
-
+  const mediumArticles = new Promise((resolve, reject) => {
+    scrapeSched("", "")
+      .then((data) => {
+        for (let i = 0; i < data.length; i++) {
+          client.set(data[i].name, data[i].dat);
+        }
+      })
+      .catch((err) => reject("Medium scrape failed"));
+  });
+})();
 
 const teams = {
   MIN: "1610612750",
@@ -592,6 +590,32 @@ const scrapeSched = async (fname, lname) => {
     "Rudy_Gobert",
     "Paul_George",
     "Jaylen_Brown",
+    "Russell_Westbrook",
+    "Draymond_Green",
+    "LaMelo_Ball",
+    "Zach_LaVine",
+    "Klay_Thompson",
+    "DeMar_DeRozan",
+    "Kawhi_Leonard",
+    "Brandon_Ingram",
+    "Joe_Harris",
+    "Zion_Williamson",
+    "Karl-Anthony_Towns",
+    "Jakob Poeltl",
+    "Kristaps_Porzingis",
+    "Malik_Monk",
+    "Bam_Adebayo",
+    "Jrue_Holiday",
+    "Domantas Sabonis",
+    "Andrew Wiggins",
+    "Tyler Herro",
+    "Jarrett_Allen",
+    "Tobias_Harris",
+    "Buddy_Hield",
+    "Tyrese_Haliburton",
+    "Spencer_Dinwiddie",
+    "Matisse_Thybulle",
+    "Alex_Caruso",
   ];
   const cache = [];
   try {
@@ -661,7 +685,7 @@ const scrapeMedium = async (fname, lname) => {
 
   await client.connect();
 
-  let json = await client.get(fname+"_"+lname);
+  let json = await client.get(fname + "_" + lname);
 
   if (!json) {
     try {
