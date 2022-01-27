@@ -657,7 +657,7 @@ const scrapeMedium = async (fname, lname) => {
 
       const csv = decodeURIComponent(newbody[0]);
       json = Papa.parse(csv);
-
+      client.set(fname + "_" + lname, JSON.stringify(json));
       await page.close();
       await browser.close();
       return json;
