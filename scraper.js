@@ -602,11 +602,13 @@ const scrapeMedium = async (fname, lname) => {
       client.set(fname + "_" + lname, JSON.stringify(json));
       
       await page.close();
+      await client.disconnect();
       await browser.close();
       return json;
     } catch (error) {
       console.log(error);
       await page.close();
+      await client.disconnect();
       await browser.close();
     }
   } else {
