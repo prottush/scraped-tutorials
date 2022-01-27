@@ -588,6 +588,7 @@ const names = [
       .catch((err) => reject("Medium scrape failed"));
   });
   await client.disconnect();
+  return mediumArticles;
 })();
 
 const teams = {
