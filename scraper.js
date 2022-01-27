@@ -510,7 +510,7 @@ const players = {
 const redis = require("redis");
 const { json } = require("express");
 const cron = require("node-cron");
-
+cron.schedule("00 01 18 * * *", () => {
   (async () => {
     const client = redis.createClient({
       url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
@@ -531,10 +531,10 @@ const cron = require("node-cron");
             client.set(data[i].name, data[i].dat);
           }
         })
-        .catch((err) => reject("Scrape failed, fak this"));
+        .catch((err) => reject("Medium scrape failed"));
     });
   })();
-
+});
 
 const teams = {
   MIN: "1610612750",
@@ -661,7 +661,7 @@ const scrapeMedium = async (fname, lname) => {
 
   await client.connect();
 
-  let json = await client.get("Stephen_Curry");
+  let json = await client.get(fname+"_"+lname);
 
   if (!json) {
     try {
