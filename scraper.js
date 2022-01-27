@@ -601,14 +601,14 @@ const scrapeSched = async (fname, lname) => {
     "Joe_Harris",
     "Zion_Williamson",
     "Karl-Anthony_Towns",
-    "Jakob_Poeltl",
+    "Jakob Poeltl",
     "Kristaps_Porzingis",
     "Malik_Monk",
     "Bam_Adebayo",
     "Jrue_Holiday",
-    "Domantas_Sabonis",
-    "Andrew_Wiggins",
-    "Tyler_Herro",
+    "Domantas Sabonis",
+    "Andrew Wiggins",
+    "Tyler Herro",
     "Jarrett_Allen",
     "Tobias_Harris",
     "Buddy_Hield",
@@ -659,9 +659,7 @@ const scrapeSched = async (fname, lname) => {
       const json = Papa.parse(csv);
       const dat = JSON.stringify(json);
       cache.push({ name: names[i], dat: dat });
-      console.log(names[i] + "  PBP scrape completed and cached! Payload size is: " + dat.length + " Scrape url is: " + "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
-      pID +
-      "&EntityType=Player&Table=Shooting&StatType=Totals");
+      console.log(names[i] + " completed size is: " + dat.length);
       await page.close();
     }
     await browser.close();
