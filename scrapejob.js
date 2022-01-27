@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer");
 const Papa = require("papaparse");
-
 const players = {
   "James Harden": "201935",
   "Andrew Wiggins": "203952",
@@ -511,30 +510,82 @@ const redis = require("redis");
 const { json } = require("express");
 const cron = require("node-cron");
 
-  (async () => {
-    const client = redis.createClient({
-      url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
-      socket: {
-        tls: true,
-        rejectUnauthorized: false,
-      },
-    });
+const names = [
+  "LeBron_James",
+  "Stephen_Curry",
+  "Kevin_Durant",
+  "Giannis_Antetokounmpo",
+  "James_Harden",
+  "Nikola_Jokic",
+  "Joel_Embiid",
+  "Anthony_Davis",
+  "Luka_Doncic",
+  "Damian_Lillard",
+  "Devin_Booker",
+  "Chris_Paul",
+  "Jayson_Tatum",
+  "Bradley_Beal",
+  "Khris_Middleton",
+  "Jimmy_Butler",
+  "Ja_Morant",
+  "Trae_Young",
+  "Kyrie_Irving",
+  "Shai_Gilgeous-Alexander",
+  "Rudy_Gobert",
+  "Paul_George",
+  "Jaylen_Brown",
+  "Russell_Westbrook",
+  "Draymond_Green",
+  "LaMelo_Ball",
+  "Zach_LaVine",
+  "Klay_Thompson",
+  "DeMar_DeRozan",
+  "Kawhi_Leonard",
+  "Deandre_Ayton",
+  "Brandon_Ingram",
+  "Joe_Harris",
+  "Zion_Williamson",
+  "Karl-Anthony_Towns",
+  "Jakob_Poeltl",
+  "Kristaps_Porzingis",
+  "Malik_Monk",
+  "Bam_Adebayo",
+  "Jrue_Holiday",
+  "Domantas_Sabonis",
+  "Andrew_Wiggins",
+  "Tyler_Herro",
+  "Jarrett_Allen",
+  "Tobias_Harris",
+  "Buddy_Hield",
+  "Tyrese_Haliburton",
+  "Spencer_Dinwiddie",
+  "Matisse_Thybulle",
+  "Alex_Caruso",
+];
+(async () => {
 
-    client.on("error", (err) => console.log("Redis Client Error", err));
+  const client = redis.createClient({
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    },
+  });
+  console.log("Initiating scheduled PBP scrape for " + names.length + " players...\n");
+  client.on("error", (err) => console.log("Redis Client Error", err));
 
-    await client.connect();
+  await client.connect();
 
-    const mediumArticles = new Promise((resolve, reject) => {
-      scrapeSched("", "")
-        .then((data) => {
-          for (let i = 0; i < data.length; i++) {
-            client.set(data[i].name, data[i].dat);
-          }
-        })
-        .catch((err) => reject("Scrape failed, fak this"));
-    });
-  })();
-
+  const mediumArticles = new Promise((resolve, reject) => {
+    scrapeSched("", "")
+      .then((data) => {
+        for (let i = 0; i < data.length; i++) {
+          client.set(data[i].name, data[i].dat);
+        }
+      })
+      .catch((err) => reject("Medium scrape failed"));
+  });
+})();
 
 const teams = {
   MIN: "1610612750",
@@ -570,29 +621,7 @@ const teams = {
 };
 
 const scrapeSched = async (fname, lname) => {
-  const names = [
-    "LeBron_James",
-    "Stephen_Curry",
-    "Kevin_Durant",
-    "Giannis_Antetokounmpo",
-    "James_Harden",
-    "Nikola_Jokic",
-    "Joel_Embiid",
-    "Anthony_Davis",
-    "Luka_Doncic",
-    "Damian_Lillard",
-    "Devin_Booker",
-    "Chris_Paul",
-    "Jayson_Tatum",
-    "Bradley_Beal",
-    "Jimmy_Butler",
-    "Ja_Morant",
-    "Trae_Young",
-    "Kyrie_Irving",
-    "Rudy_Gobert",
-    "Paul_George",
-    "Jaylen_Brown",
-  ];
+ 
   const cache = [];
   try {
     const browser = await puppeteer.launch({
@@ -635,7 +664,9 @@ const scrapeSched = async (fname, lname) => {
       const json = Papa.parse(csv);
       const dat = JSON.stringify(json);
       cache.push({ name: names[i], dat: dat });
-      console.log(dat);
+      console.log(names[i].toUpperCase() + " PBP scrape completed and cached! Go Bron! \nPayload size is: " + dat.length + " \nUrl Scraped: " + "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
+      pID +
+      "&EntityType=Player&Table=Shooting&StatType=Totals\n");
       await page.close();
     }
     await browser.close();
@@ -661,7 +692,7 @@ const scrapeMedium = async (fname, lname) => {
 
   await client.connect();
 
-  let json = await client.get("Stephen_Curry");
+  let json = await client.get(fname + "_" + lname);
 
   if (!json) {
     try {
