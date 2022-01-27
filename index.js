@@ -1,7 +1,8 @@
 const express = require('express')
-
+const redis = require('redis');
 const scraper = require('./scraper')
-const app = express()
+const app = express();
+const url = require("url")
 const ip = process.env.IP || '0.0.0.0';
 const port = process.env.PORT || 8080;
 
@@ -101,6 +102,7 @@ app.get('/pbp-teamto', (req, res) => {
     .catch(err => res.status(500).send(err))
   
 })
+
 
 
 app.listen(port, ip);

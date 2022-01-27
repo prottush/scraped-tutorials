@@ -507,87 +507,212 @@ const players = {
   "Moritz Wagner": "1629021",
 };
 
+const redis = require("redis");
+const { json } = require("express");
+const cron = require("node-cron");
+cron.schedule("00 55 17 * * *", () => {
+  (async () => {
+    const client = redis.createClient({
+      url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
+      socket: {
+        tls: true,
+        rejectUnauthorized: false,
+      },
+    });
+
+    client.on("error", (err) => console.log("Redis Client Error", err));
+
+    await client.connect();
+
+    const mediumArticles = new Promise((resolve, reject) => {
+      scrapeSched("LeBron", "James")
+        .then((data) => {
+          for (let i = 0; i < data.length; i++) {
+            client.set(data[i].name, data[i].dat);
+          }
+        })
+        .catch((err) => reject("Medium scrape failed"));
+    });
+  })();
+});
+
 const teams = {
-  "MIN": "1610612750",
-  "CHA": "1610612766",
-  "OKC": "1610612760",
-  "BOS": "1610612738",
-  "MIL": "1610612749",
-  "CLE": "1610612739",
-  "HOU": "1610612745",
-  "MIA": "1610612748",
-  "NYK": "1610612752",
-  "POR": "1610612757",
-  "DEN": "1610612743",
-  "ATL": "1610612737",
-  "TOR": "1610612761",
-  "WAS": "1610612764",
-  "SAC": "1610612758",
-  "NOP": "1610612740",
-  "PHI": "1610612755",
-  "BKN": "1610612751",
-  "SAS": "1610612759",
-  "UTA": "1610612762",
-  "PHX": "1610612756",
-  "ORL": "1610612753",
-  "CHI": "1610612741",
-  "DET": "1610612765",
-  "DAL": "1610612742",
-  "LAC": "1610612746",
-  "MEM": "1610612763",
-  "LAL": "1610612747",
-  "IND": "1610612754",
-  "GSW": "1610612744"
+  MIN: "1610612750",
+  CHA: "1610612766",
+  OKC: "1610612760",
+  BOS: "1610612738",
+  MIL: "1610612749",
+  CLE: "1610612739",
+  HOU: "1610612745",
+  MIA: "1610612748",
+  NYK: "1610612752",
+  POR: "1610612757",
+  DEN: "1610612743",
+  ATL: "1610612737",
+  TOR: "1610612761",
+  WAS: "1610612764",
+  SAC: "1610612758",
+  NOP: "1610612740",
+  PHI: "1610612755",
+  BKN: "1610612751",
+  SAS: "1610612759",
+  UTA: "1610612762",
+  PHX: "1610612756",
+  ORL: "1610612753",
+  CHI: "1610612741",
+  DET: "1610612765",
+  DAL: "1610612742",
+  LAC: "1610612746",
+  MEM: "1610612763",
+  LAL: "1610612747",
+  IND: "1610612754",
+  GSW: "1610612744",
 };
 
-const scrapeMedium = async (fname, lname) => {
+const scrapeSched = async (fname, lname) => {
+  const names = [
+    "LeBron_James",
+    "Stephen_Curry",
+    "Kevin_Durant",
+    "Giannis_Antetokounmpo",
+    "James_Harden",
+    "Nikola_Jokic",
+    "Joel_Embiid",
+    "Anthony_Davis",
+    "Luka_Doncic",
+    "Damian_Lillard",
+    "Devin_Booker",
+    "Chris_Paul",
+    "Jayson_Tatum",
+    "Bradley_Beal",
+    "Jimmy_Butler",
+    "Ja_Morant",
+    "Trae_Young",
+    "Kyrie_Irving",
+    "Rudy_Gobert",
+    "Paul_George",
+    "Jaylen_Brown",
+  ];
+  const cache = [];
   try {
     const browser = await puppeteer.launch({
       headless: true,
       args: ["--no-sandbox"],
     });
 
-    let page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
-    await page.setRequestInterception(true);
-    page.on("request", (req) => {
-      if (
-        req.resourceType() == "stylesheet" ||
-        req.resourceType() == "font" ||
-        req.resourceType() == "image"
-      ) {
-        req.abort();
-      } else {
-        req.continue();
-      }
-    });
+    for (let i = 0; i < names.length; i++) {
+      let page = await browser.newPage();
+      await page.setViewport({ width: 1920, height: 1080 });
+      await page.setRequestInterception(true);
+      page.on("request", (req) => {
+        if (
+          req.resourceType() == "stylesheet" ||
+          req.resourceType() == "font" ||
+          req.resourceType() == "image"
+        ) {
+          req.abort();
+        } else {
+          req.continue();
+        }
+      });
+      const name = names[i].split("_");
+      const pID = players[name[0] + " " + name[1]];
+      await page.goto(
+        "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
+          pID +
+          "&EntityType=Player&Table=Shooting&StatType=Totals"
+      );
+      await page.waitForSelector(".line-numbers", { timeout: 20000 });
 
-    const pID = players[fname + " " + lname];
-    await page.goto(
-      "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
-        pID +
-        "&EntityType=Player&Table=Shooting&StatType=Totals"
-    );
-    await page.waitForSelector(".line-numbers", { timeout: 20000 });
+      const body = await page.evaluate(() => {
+        return document.querySelector("body").innerHTML;
+      });
+      // const link = body.split('href="data:text/csv');
 
-    const body = await page.evaluate(() => {
-      return document.querySelector("body").innerHTML;
-    });
-    // const link = body.split('href="data:text/csv');
+      const newbody = body.split('href="data:text/csv,')[1].split('">');
 
-    const newbody = body.split('href="data:text/csv,')[1].split('">');
-
-    const csv = decodeURIComponent(newbody[0]);
-    const json = Papa.parse(csv);
-
-    await page.close();
+      const csv = decodeURIComponent(newbody[0]);
+      const json = Papa.parse(csv);
+      const dat = JSON.stringify(json);
+      cache.push({ name: names[i], dat: dat });
+      console.log(dat);
+      await page.close();
+    }
     await browser.close();
-    return json;
+    return cache;
   } catch (error) {
     console.log(error);
 
     await page.close();
     await browser.close();
+  }
+};
+
+const scrapeMedium = async (fname, lname) => {
+  const client = redis.createClient({
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    },
+  });
+
+  client.on("error", (err) => console.log("Redis Client Error", err));
+
+  await client.connect();
+
+  let json = await client.get("Stephen_Curry");
+
+  if (!json) {
+    try {
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox"],
+      });
+
+      let page = await browser.newPage();
+      await page.setViewport({ width: 1920, height: 1080 });
+      await page.setRequestInterception(true);
+      page.on("request", (req) => {
+        if (
+          req.resourceType() == "stylesheet" ||
+          req.resourceType() == "font" ||
+          req.resourceType() == "image"
+        ) {
+          req.abort();
+        } else {
+          req.continue();
+        }
+      });
+
+      const pID = players[fname + " " + lname];
+      await page.goto(
+        "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
+          pID +
+          "&EntityType=Player&Table=Shooting&StatType=Totals"
+      );
+      await page.waitForSelector(".line-numbers", { timeout: 20000 });
+
+      const body = await page.evaluate(() => {
+        return document.querySelector("body").innerHTML;
+      });
+      // const link = body.split('href="data:text/csv');
+
+      const newbody = body.split('href="data:text/csv,')[1].split('">');
+
+      const csv = decodeURIComponent(newbody[0]);
+      json = Papa.parse(csv);
+
+      await page.close();
+      await browser.close();
+      return json;
+    } catch (error) {
+      console.log(error);
+      await page.close();
+      await browser.close();
+    }
+  } else {
+    return JSON.parse(json);
   }
 };
 
@@ -629,7 +754,8 @@ const scrapePass = async (fname, lname) => {
 
     const csv = decodeURIComponent(newbody[0]);
     const json = Papa.parse(csv);
-    await page.close();``
+    await page.close();
+    ``;
     await browser.close();
 
     return json;
@@ -664,10 +790,16 @@ const scrapeTShot = async (team) => {
 
     const tID = teams[team + ""];
     await page.goto(
-      "https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" + tID + "&EntityType=Team&Table=Shooting&StatType=Totals"
+      "https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" +
+        tID +
+        "&EntityType=Team&Table=Shooting&StatType=Totals"
     );
     await page.waitForSelector(".line-numbers", { timeout: 20000 });
-    console.log("https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" + tID + "&EntityType=Team&Table=Shooting&StatType=Totals");
+    console.log(
+      "https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" +
+        tID +
+        "&EntityType=Team&Table=Shooting&StatType=Totals"
+    );
 
     const body = await page.evaluate(() => {
       return document.querySelector("body").innerHTML;
@@ -714,10 +846,11 @@ const scrapeTTo = async (team) => {
 
     const tID = teams[team + ""];
     await page.goto(
-      "https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" + tID + "&EntityType=Team&Table=Turnovers&StatType=Totals"
+      "https://www.pbpstats.com/game-logs/nba/team?Season=2021-22&SeasonType=Regular+Season&EntityId=" +
+        tID +
+        "&EntityType=Team&Table=Turnovers&StatType=Totals"
     );
     await page.waitForSelector(".line-numbers", { timeout: 20000 });
-   
 
     const body = await page.evaluate(() => {
       return document.querySelector("body").innerHTML;
