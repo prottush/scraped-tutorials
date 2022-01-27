@@ -562,6 +562,7 @@ const names = [
   "Spencer_Dinwiddie",
   "Matisse_Thybulle",
   "Alex_Caruso",
+  "Darius_Garland"
 ];
 (async () => {
 
