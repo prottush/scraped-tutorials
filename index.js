@@ -52,8 +52,6 @@ app.get('/pbp-shotchart', (req, res) => {
           .catch(err => reject('Medium scrape failed'))
       })
     }
-     const value = await client.get('Hi');
-    console.log(value);
   })();
   
 
