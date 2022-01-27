@@ -659,7 +659,7 @@ const scrapeSched = async (fname, lname) => {
       const json = Papa.parse(csv);
       const dat = JSON.stringify(json);
       cache.push({ name: names[i], dat: dat });
-      console.log(dat);
+      console.log(names[i] + " completed size is: " + dat.length);
       await page.close();
     }
     await browser.close();
