@@ -545,7 +545,7 @@ const teams = {
 };
 
 
-const scrapeMedium = async (fname, lname) => {
+const scrapeMedium = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
     url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
     socket: {
@@ -560,7 +560,7 @@ const scrapeMedium = async (fname, lname) => {
 
   let json = await client.get(fname + "_" + lname);
   
-  if (!json) {
+  if (!json || hard==="hard") {
     try {
       const browser = await puppeteer.launch({
         headless: true,
