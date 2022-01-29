@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const Papa = require("papaparse");
+const request = require('request');
 const players = {
   "James Harden": "201935",
   "Andrew Wiggins": "203952",
@@ -544,6 +545,58 @@ const teams = {
   GSW: "1610612744",
 };
 
+function doRequest(url) {
+  return new Promise(function (resolve, reject) {
+    request(url, function (error, res, body) {
+      if (!error && res.statusCode == 200) {
+        resolve(body);
+      } else {
+        reject(error);
+      }
+    });
+  });
+}
+
+
+const scrapePBPTOT = async (fname, lname, hard="soft") => {
+  const client = redis.createClient({
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    },
+  });
+
+  client.on("error", (err) => console.log("Redis Client Error", err));
+
+  await client.connect();
+
+  let json = await client.get(fname + "_" + lname);
+  
+  if (!json || hard==="hard") {
+    const pID = players[fname + " " + lname];
+    try {
+      const result = await doRequest('https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18&SeasonType=Regular%20Season&EntityType=Player&EntityId=' + pID)
+      
+      console.log(result);
+      return JSON.parse(result).multi_row_table_data;
+  }
+  catch (err) {
+      console.error(err)
+  }
+ 
+
+      
+
+    
+  } else {
+    await client.disconnect();
+    return JSON.parse(json);
+    
+  }
+};
+
+
 
 const scrapeMedium = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
@@ -801,3 +854,4 @@ module.exports.scrapePass = scrapePass;
 module.exports.scrapeTShot = scrapeTShot;
 module.exports.scrapeTTo = scrapeTTo;
 module.exports.scrapeYoutube = scrapeYoutube;
+module.exports.scrapePBPTOT = scrapePBPTOT;
