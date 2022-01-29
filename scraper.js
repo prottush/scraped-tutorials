@@ -574,6 +574,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
   let json = await client.get(fname + "_" + lname);
   
   if (!json || hard==="hard") {
+    await client.disconnect();
     const pID = players[fname + " " + lname];
     try {
       const result = await doRequest('https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18&SeasonType=Regular%20Season&EntityType=Player&EntityId=' + pID)
