@@ -569,13 +569,14 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
     },
   });
 
+  
   client.on("error", (err) => console.log("Redis Client Error", err));
-
   await client.connect();
+  
 
   let json = await client.get(fname + "_" + lname);
   
-  if (!JSON.stringify(json) || hard==="hard") {
+  if (hard==="hard") {
    
     const pID = players[fname + " " + lname];
     try {
@@ -608,7 +609,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
     return restoredFromString;
     
   }
-client.end();
+client.quit();
   
 };
 
