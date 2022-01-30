@@ -586,12 +586,12 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
       const compressedString = cjson.compress.toString( newJ );
       
       client.set(fname + "_" + lname, compressedString);
-      await client.disconnect();
+
       return newJ;
       
   }
   catch (err) {
-    await client.disconnect();
+
       console.error(err)
   }
  
@@ -603,11 +603,11 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
     console.log(json);
     const restoredFromString = cjson.decompress.fromString(json);
     console.log(fname, json.length, "cached");
-    await client.disconnect();
+
     return restoredFromString;
     
   }
-
+client.end();
   
 };
 
@@ -628,7 +628,7 @@ const scrapeMedium = async (fname, lname, hard="soft") => {
 
   let json = await client.get(fname + "_" + lname);
   
-  if (!json || hard==="hard") {
+  if (json.str || hard==="hard") {
     try {
       const browser = await puppeteer.launch({
         headless: true,
