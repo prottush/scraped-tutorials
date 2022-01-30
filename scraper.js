@@ -587,7 +587,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
       console.log(newJ);
       const compressedString = cjson.compress.toString( newJ );
       
-      client.set(fname + "_" + lname, compressedString);
+      await client.set(fname + "_" + lname, compressedString);
 
       return newJ;
       
@@ -609,7 +609,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
     return restoredFromString;
     
   }
-client.quit();
+await client.quit();
   
 };
 
