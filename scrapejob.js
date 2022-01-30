@@ -638,8 +638,9 @@ const scrapeSched = async (fname, lname) => {
         
         console.log(result);
         client.set(fname + "_" + lname, JSON.stringify(json));
-        return JSON.parse(result).multi_row_table_data;
         await client.disconnect();
+        return JSON.parse(result).multi_row_table_data;
+        
     }
     catch (err) {
         console.error(err)
