@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer");
 const Papa = require("papaparse");
 const request = require('request');
+const cjson = require('compressed-json');
 const players = {
   "James Harden": "201935",
   "Andrew Wiggins": "203952",
@@ -560,7 +561,7 @@ function doRequest(url) {
 
 const scrapePBPTOT = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-196-105-0.compute-1.amazonaws.com:18249",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -579,15 +580,18 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
     try {
       const result = await doRequest('https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16&SeasonType=Regular%20Season&EntityType=Player&EntityId=' + pID)
       
-      console.log(fname, result.length, "noncached");
+      
       const newJ = JSON.parse(result).multi_row_table_data; 
-      client.set(fname + "_" + lname, JSON.stringify(newJ));
-      await client.disconnect();
-      return JSON.parse(result).multi_row_table_data;
+      console.log(JSON.stringify(newJ).length);
+      const compressedString = cjson.compress.toString( newJ );
+      console.log(fname, compressedString.length, "noncached");
+      client.set(fname + "_" + lname, compressedString);
+      
+      return newJ;
       
   }
   catch (err) {
-    await client.disconnect();
+    
       console.error(err)
   }
  
@@ -596,11 +600,14 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
 
     
   } else {
-    await client.disconnect();
+    
+    const restoredFromString = cjson.decompress.fromString(json);
     console.log(fname, json.length, "cached");
-    return JSON.parse(json);
+    return restoredFromString;
     
   }
+
+  await client.disconnect();
 };
 
 

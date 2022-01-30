@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer");
 const Papa = require("papaparse");
 const request = require('request');
+const cjson = require('compressed-json')
 const players = {
   "James Harden": "201935",
   "Andrew Wiggins": "203952",
@@ -524,29 +525,7 @@ function doRequest(url) {
   });
 }
 
-(async () => {
-  const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
-    socket: {
-      tls: true,
-      rejectUnauthorized: false,
-    },
-  });
-  console.log("Starting scheduled scrub ")
-  client.on("error", (err) => console.log("Redis Client Error", err));
 
-  await client.connect();
-
-  const mediumArticles = new Promise((resolve, reject) => {
-    scrapeSched("", "")
-      .then((data) => {
-        for (let i = 0; i < data.length; i++) {
-          client.set(data[i].name, data[i].dat);
-        }
-      })
-      .catch((err) => reject("Medium scrape failed"));
-  });
-})();
 
 const teams = {
   MIN: "1610612750",
@@ -580,61 +559,61 @@ const teams = {
   IND: "1610612754",
   GSW: "1610612744",
 };
-
+const names = [
+  "LeBron_James",
+  "Stephen_Curry",
+  "Kevin_Durant",
+  "Giannis_Antetokounmpo",
+  "James_Harden",
+  "Nikola_Jokic",
+  "Joel_Embiid",
+  "Anthony_Davis",
+  "Luka_Doncic",
+  "Damian_Lillard",
+  "Devin_Booker",
+  "Chris_Paul",
+  "Jayson_Tatum",
+  "Bradley_Beal",
+  "Khris_Middleton",
+  "Jimmy_Butler",
+  "Ja_Morant",
+  "Trae_Young",
+  "Kyrie_Irving",
+  "Shai_Gilgeous-Alexander",
+  "Rudy_Gobert",
+  "Paul_George",
+  "Luguentz_Dort",
+  "Jaylen_Brown",
+  "Russell_Westbrook",
+  "Draymond_Green",
+  "LaMelo_Ball",
+  "Zach_LaVine",
+  "Klay_Thompson",
+  "DeMar_DeRozan",
+  "Kawhi_Leonard",
+  "Deandre_Ayton",
+  "Brandon_Ingram",
+  "Joe_Harris",
+  "Zion_Williamson",
+  "Karl-Anthony_Towns",
+  "Jakob_Poeltl",
+  "Kristaps_Porzingis",
+  "Malik_Monk",
+  "Bam_Adebayo",
+  "Jrue_Holiday",
+  "Domantas_Sabonis",
+  "Andrew_Wiggins",
+  "Tyler_Herro",
+  "Jarrett_Allen",
+  "Tobias_Harris",
+  "Buddy_Hield",
+  "Tyrese_Haliburton",
+  "Spencer_Dinwiddie",
+  "Matisse_Thybulle",
+  "Alex_Caruso",
+];
 const scrapeSched = async (fname, lname) => {
-  const names = [
-    "LeBron_James",
-    "Stephen_Curry",
-    "Kevin_Durant",
-    "Giannis_Antetokounmpo",
-    "James_Harden",
-    "Nikola_Jokic",
-    "Joel_Embiid",
-    "Anthony_Davis",
-    "Luka_Doncic",
-    "Damian_Lillard",
-    "Devin_Booker",
-    "Chris_Paul",
-    "Jayson_Tatum",
-    "Bradley_Beal",
-    "Khris_Middleton",
-    "Jimmy_Butler",
-    "Ja_Morant",
-    "Trae_Young",
-    "Kyrie_Irving",
-    "Shai_Gilgeous-Alexander",
-    "Rudy_Gobert",
-    "Paul_George",
-    "Luguentz_Dort",
-    "Jaylen_Brown",
-    "Russell_Westbrook",
-    "Draymond_Green",
-    "LaMelo_Ball",
-    "Zach_LaVine",
-    "Klay_Thompson",
-    "DeMar_DeRozan",
-    "Kawhi_Leonard",
-    "Deandre_Ayton",
-    "Brandon_Ingram",
-    "Joe_Harris",
-    "Zion_Williamson",
-    "Karl-Anthony_Towns",
-    "Jakob_Poeltl",
-    "Kristaps_Porzingis",
-    "Malik_Monk",
-    "Bam_Adebayo",
-    "Jrue_Holiday",
-    "Domantas_Sabonis",
-    "Andrew_Wiggins",
-    "Tyler_Herro",
-    "Jarrett_Allen",
-    "Tobias_Harris",
-    "Buddy_Hield",
-    "Tyrese_Haliburton",
-    "Spencer_Dinwiddie",
-    "Matisse_Thybulle",
-    "Alex_Caruso",
-  ];
+  
   const cache = [];
  
     for (let i = 0; i < names.length; i++) {
@@ -656,6 +635,53 @@ const scrapeSched = async (fname, lname) => {
     }
 } return cache;
   }
+
+  const scrapePBPTOT = async (fname, lname, hard="soft") => {
+    const client = redis.createClient({
+      url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-196-105-0.compute-1.amazonaws.com:18249",
+      socket: {
+        tls: true,
+        rejectUnauthorized: false,
+      },
+    });
+  
+    client.on("error", (err) => console.log("Redis Client Error", err));
+  
+    await client.connect();
+  
+    
+    
+    for (let i = 0; i < names.length; i++) {
+     
+      const name = names[i].split("_");
+      const pID = players[name[0] + " " + name[1]];
+      
+      try {
+        const result = await doRequest('https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16&SeasonType=Regular%20Season&EntityType=Player&EntityId=' + pID)
+        
+        
+        const newJ = JSON.parse(result).multi_row_table_data;
+        const lol = JSON.stringify(newJ);
+        const compressedString = cjson.compress.toString( newJ );
+        client.set(fname + "_" + lname, compressedString);
+        console.log(names[i].toUpperCase() + " PBP scrape completed and cached! \nPayload size is: " + lol.length + "\nCompressed size is: " + compressedString.length + " \nScrape url is: " + 'https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16&SeasonType=Regular%20Season&EntityType=Player&EntityId=' + pID +"\n");
+        
+    }
+    catch (err) {
+ 
+        console.error(err)
+    }
+   
+  
+        
+  
+      
+    }
+    await client.disconnect(); 
+    return "";
+  };
+
+  scrapePBPTOT("", "");
 
 const scrapeMedium = async (fname, lname) => {
   const client = redis.createClient({
