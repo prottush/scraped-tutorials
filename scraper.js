@@ -582,8 +582,9 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
       
       
       const newJ = JSON.parse(result).multi_row_table_data; 
-      
-      const compressedString = cjson.compress.toString( newJ );
+      const lj =  cjson.compress.toString( newJ );
+      console.log(newJ);
+      const compressedString = cjson.compress.toString(lj);
       
       client.set(fname + "_" + lname, compressedString);
       
@@ -602,8 +603,8 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
   } else {
     console.log(json);
     const restoredFromString = cjson.decompress.fromString(json);
-    console.log(restoredFromString);
-    return json;
+    console.log(fname, json.length, "cached");
+    return restoredFromString;
     
   }
 
