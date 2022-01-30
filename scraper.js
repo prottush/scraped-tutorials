@@ -575,7 +575,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
 
   let json = await client.get(fname + "_" + lname);
   
-  if (!json || hard==="hard") {
+  if (!JSON.stringify(json) || hard==="hard") {
    
     const pID = players[fname + " " + lname];
     try {
