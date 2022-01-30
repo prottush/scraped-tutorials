@@ -236,6 +236,7 @@ const players = {
   "Monta Ellis": "101145",
   "Jakob Poeltl": "1627751",
   "Dillon Brooks": "1628415",
+  "Austin Reaves": "1630559",
   "Trey Lyles": "1626168",
   "Josh Hart": "1628404",
   "Mike Scott": "203118",
@@ -628,7 +629,7 @@ const scrapeMedium = async (fname, lname, hard="soft") => {
 
   let json = await client.get(fname + "_" + lname);
   
-  if (json.str || hard==="hard") {
+  if (!JSON.stringify(json) || hard==="hard") {
     try {
       const browser = await puppeteer.launch({
         headless: true,
