@@ -629,53 +629,21 @@ const scrapeSched = async (fname, lname) => {
     });
 
     for (let i = 0; i < names.length; i++) {
-      let page = await browser.newPage();
-      await page.setViewport({ width: 1920, height: 1080 });
-      await page.setRequestInterception(true);
-      page.on("request", (req) => {
-        if (
-          req.resourceType() == "stylesheet" ||
-          req.resourceType() == "font" ||
-          req.resourceType() == "image"
-        ) {
-          req.abort();
-        } else {
-          req.continue();
-        }
-      });
+     
       const name = names[i].split("_");
       const pID = players[name[0] + " " + name[1]];
-      await page.goto(
-        "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
-          pID +
-          "&EntityType=Player&Table=Shooting&StatType=Totals"
-      );
-      await page.waitForSelector(".line-numbers", { timeout: 20000 });
-
-      const body = await page.evaluate(() => {
-        return document.querySelector("body").innerHTML;
-      });
-      // const link = body.split('href="data:text/csv');
-
-      const newbody = body.split('href="data:text/csv,')[1].split('">');
-
-      const csv = decodeURIComponent(newbody[0]);
-      const json = Papa.parse(csv);
-      const dat = JSON.stringify(json);
-      cache.push({ name: names[i], dat: dat });
-      console.log(names[i].toUpperCase() + " PBP scrape completed and cached! \nPayload size is: " + dat.length + " \nScrape url is: " + "https://www.pbpstats.com/game-logs/nba/player?Season=2021-22,2020-21,2017-18,2018-19,2019-20&SeasonType=Regular+Season&EntityId=" +
-      pID +
-      "&EntityType=Player&Table=Shooting&StatType=Totals\n");
-      await page.close();
+       const pID = players[fname + " " + lname];
+       try {
+        const result = await doRequest('https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16&SeasonType=Regular%20Season&EntityType=Player&EntityId=' + pID)
+        
+        console.log(result);
+        client.set(fname + "_" + lname, JSON.stringify(json));
+        return JSON.parse(result).multi_row_table_data;
+        await client.disconnect();
     }
-    await browser.close();
-    return cache;
-  } catch (error) {
-    console.log(error);
-
-    await page.close();
-    await browser.close();
-  }
+    catch (err) {
+        console.error(err)
+    }
 };
 
 const scrapeMedium = async (fname, lname) => {
