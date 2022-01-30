@@ -586,6 +586,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
       
   }
   catch (err) {
+    await client.disconnect()
       console.error(err)
   }
  

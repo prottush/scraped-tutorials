@@ -42,7 +42,7 @@ app.get('/pbp-shotchar2', (req, res) => {
   req.query.color2 === 'blue' // true
   const mediumArticles = new Promise((resolve, reject) => {
     scraper
-      .scrapePBPTOT(req.query.fname, req.query.lname, "hard")
+      .scrapePBPTOT(req.query.fname, req.query.lname, req.query.hard)
       .then(data => {
         resolve(data)
       })
