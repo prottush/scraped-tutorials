@@ -590,7 +590,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
       await client.set(fname + "_" + lname, compressedString);
       
       await client.quit();
-      
+      return newJ;
       
   }
   catch (err) {
