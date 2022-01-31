@@ -562,7 +562,7 @@ function doRequest(url) {
 
 const scrapePBPTOT = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-196-105-0.compute-1.amazonaws.com:18249",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -576,7 +576,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
 
   let json = await client.get(fname + "_" + lname);
   
-  if (hard==="hard") {
+  if (!json || hard==="hard") {
    
     const pID = players[fname + " " + lname];
     try {
@@ -588,8 +588,9 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
       const compressedString = cjson.compress.toString( newJ );
       
       await client.set(fname + "_" + lname, compressedString);
+      
       await client.quit();
-      return newJ;
+      
       
   }
   catch (err) {
@@ -618,7 +619,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
 
 const scrapeMedium = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-34-231-237-66.compute-1.amazonaws.com:23880",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739",
     socket: {
       tls: true,
       rejectUnauthorized: false,
