@@ -123,7 +123,7 @@ const players = {
   "George Hill": "201588",
   "Patrick Beverley": "201976",
   "Andre Iguodala": "2738",
-  "Kelly Oubre-Jr.": "1626162",
+  "Kelly Oubre-Jr": "1626162",
   "Domantas Sabonis": "1627734",
   "Terry Rozier": "1626179",
   "Jayson Tatum": "1628369",
