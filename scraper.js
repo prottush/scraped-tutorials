@@ -632,20 +632,20 @@ const scrapePBPTOTTeam = async (team, type="Team", hard="soft") => {
   await client.connect();
   
 
-  let json = await client.get(team);
+  let json = await client.get(team+type);
   
   if (!json || hard==="hard") {
    
     const pID = teams[team];
     try {
-      const result = await doRequest('https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16&SeasonType=Regular%20Season&EntityType="+ type + "&EntityId=' + pID)
+      const result = await doRequest('https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16&SeasonType=Regular%20Season&EntityType=' + type + '&EntityId=' + pID)
       
       
       const newJ = JSON.parse(result).multi_row_table_data; 
       console.log(newJ);
       const compressedString = cjson.compress.toString( newJ );
       
-      await client.set(team, compressedString);
+      await client.set(team+type, compressedString);
       
       await client.quit();
       return newJ;
