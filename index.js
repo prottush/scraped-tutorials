@@ -59,6 +59,29 @@ app.get('/pbp-shotchar2', (req, res) => {
   
 })
 
+
+app.get('/pbp-shotchar3', (req, res) => {
+  req.query.color1 === 'red'  // true
+  req.query.color2 === 'blue' // true
+  const mediumArticles = new Promise((resolve, reject) => {
+    scraper
+      .scrapePBPTOTTeam(req.query.team, req.query.type, req.query.hard,)
+      .then(data => {
+        resolve(data)
+      })
+      .catch(err => reject('Medium scrape failed'))
+  })
+
+ 
+
+  Promise.all([mediumArticles])
+    .then(data => {
+      res.json(data[0])
+    })
+    .catch(err => res.status(500).send(err))
+  
+})
+
 app.get('/pbp-turnovers', (req, res) => {
   req.query.color1 === 'red'  // true
   req.query.color2 === 'blue' // true
