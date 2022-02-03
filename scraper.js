@@ -12,6 +12,7 @@ const players = {
   "Evan Mobley": "1630596",
   "Tobias Harris": "202699",
   "Giannis Antetokounmpo": "203507",
+  "Talen Horton-Tucker": "1629659",
   "Harrison Barnes": "203084",
   "Bradley Beal": "203078",
   "LeBron James": "2544",
