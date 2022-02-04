@@ -148,6 +148,28 @@ app.get('/pbp-teamto', (req, res) => {
   
 })
 
+app.get('/teamPT', (req, res) => {
+  req.query.color1 === 'red'  // true
+  req.query.color2 === 'blue' // true
+  const mediumArticles = new Promise((resolve, reject) => {
+    scraper
+      .getTeamProf()
+      .then(data => {
+        resolve(data)
+      })
+      .catch(err => reject('Medium scrape failed'))
+  })
+
+ 
+
+  Promise.all([mediumArticles])
+    .then(data => {
+      res.json(data[0])
+    })
+    .catch(err => res.status(500).send(err))
+  
+})
+
 
 
 app.listen(port, ip);
