@@ -661,13 +661,85 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
       
       
       const newJ = JSON.parse(result).multi_row_table_data; 
-      console.log(newJ);
-      const compressedString = cjson.compress.toString( newJ );
+      const json2 = newJ.map(
+        ({
+            Arc3Assists,
+            AtRimAccuracy,
+            Blocked2s,
+            EfgPct,
+            ShootingFouls,
+            FG3APct,
+            Fouls,
+            ShootingFoulsDrawPct,
+            RecoveredBlocks,
+            TsPct,
+            UnblockedShortMidRangeAccuracy,
+            BlocksRecoveredPct,
+            DefThreePtReboundPct,
+            DefArc3ReboundPct,
+            PenaltyArc3FGA,
+            PenaltyArc3Frequency,
+            PenaltyAtRimAccuracy,
+            PenaltyAtRimFGA,
+            PenaltyAtRimFGM,
+            NonPutbacksAssisted2sPct,
+            NonShootingFoulsDrawn,
+            NonShootingPenaltyNonTakeFouls,
+            NonShootingPenaltyNonTake,
+            PenaltyAtRimFrequency,
+            SecondChanceAtRimFGA,
+            SecondChanceAtRimFrequency,
+            SecondChanceFG2A,
+            SecondChanceOffPoss,
+            ShootingFoulsDrawnPct,
+            PenaltyDefPoss,
+            PenaltyEfgPct,
+            PenaltyFG2A,
+            PenaltyFG2M,
+            PenaltyFG3A,
+            PenaltyFg2Pct,
+            PenaltyFtPoints,
+            PenaltyOffPoss,
+            PenaltyOffPossExcludingTakeFouls,
+            PenaltyOffPossPct,
+            PenaltyPoints,
+            PenaltyPointsExcludingTakeFouls,
+            PenaltyPointsPct,
+            PenaltyShotQualityAvg,
+            PenaltyTsPct,
+            PenaltyTurnovers,
+            NonHeaveArc3Accuracy,
+            Fg2Pct,
+            Fg3Pct,
+            LongMidRangeFrequency,
+            LongMidRangePctAssisted,
+            TwoPtAssists,
+            TwoPtShootingFoulsDrawn,
+            TwoPtShootingFoulsDrawnPct,
+            UnblockedArc3Accuracy,
+            UnblockedAtRimAccuracy,
+            ShortMidRangeFrequency,
+            ShortMidRangeOffReboundedPct,
+            ShotQualityAvg,
+            DefAtRimReboundPct,
+    
+            DefFGReboundPct,
+            DefLongMidRangeReboundPct,
+    
+            DefShortMidRangeReboundPct,
+            DefThreePtRebounds,
+            DefTwoPtReboundPct,
+            DefTwoPtRebounds,
+            ...keepAttrs
+        }) => keepAttrs
+    );
+      console.log(json2);
+      const compressedString = cjson.compress.toString( json2 );
       
       await client.set(fname + "_" + lname, compressedString);
       
       await client.quit();
-      return newJ;
+      return json2;
       
   }
   catch (err) {
@@ -801,6 +873,7 @@ const scrapeMedium = async (fname, lname, hard="soft") => {
 
       const csv = decodeURIComponent(newbody[0]);
       json = Papa.parse(csv);
+      
       client.set(fname + "_" + lname, JSON.stringify(json));
       
       await page.close();
