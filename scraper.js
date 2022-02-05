@@ -636,6 +636,44 @@ const getTeamDProf = async () => {
   
 };
 
+const getKeyCache = async (key) => {
+  const client = redis.createClient({
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739",
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    },
+  });
+
+  
+  client.on("error", (err) => console.log("Redis Client Error", err));
+  await client.connect();
+  
+
+  let json = await client.get(key);
+  
+  if (!json ) {
+    
+    
+  
+    
+
+      
+
+    
+  } else {
+    await client.quit();
+    console.log(json);
+    const restoredFromString = cjson.decompress.fromString(json);
+    
+
+    return restoredFromString;
+    
+  }
+
+  
+};
+
 
 const scrapePBPTOT = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
@@ -1081,3 +1119,4 @@ module.exports.scrapePBPTOT = scrapePBPTOT;
 module.exports.scrapePBPTOTTeam = scrapePBPTOTTeam;
 module.exports.getTeamProf = getTeamProf ;
 module.exports.getTeamDProf = getTeamDProf;
+module.exports.getKeyCache = getKeyCache;

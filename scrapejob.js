@@ -15,28 +15,45 @@
 // const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 // puppeteer.use(StealthPlugin());
 
-// const teamPlays = [];
+
 
 // const urls = [
-//     "https://www.nba.com/stats/teams/transition/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/isolation/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/ball-handler/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/roll-man/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/ball-handler/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/playtype-post-up/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/spot-up/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/hand-off/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/cut/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/off-screen/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/putbacks/?sort=TEAM_NAME&dir=-1",
-//     "https://www.nba.com/stats/teams/playtype-misc/?sort=TEAM_NAME&dir=-1",
+//     "https://www.nba.com/stats/players/transition/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/isolation/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/ball-handler/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/roll-man/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/ball-handler/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/playtype-post-up/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/spot-up/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/hand-off/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/cut/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/off-screen/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/putbacks/#!?CF=TEAM_ABBREVIATION*E",
+//     "https://www.nba.com/stats/players/playtype-misc/#!?CF=TEAM_ABBREVIATION*E",
 // ];
+
+// const teamColors = {
+
+//     MIN: "#0C2340",
+//     NOP: "#0C2340",
+//     NYK: "#006BB6",
+//     OKC: "#007AC1",
+//     ORL: "#0077C0",
+//     PHI: "#006BB6",
+//     PHX: "#1D1160",
+//     POR: "#E03A3E",
+//     SAC: "#5A2D81",
+//     SAS: "#C4CED4",
+//     TOR: "#CE1141",
+//     UTA: "#002B5C",
+//     WAS: "#002B5C",
+// };
 // const namesSet = false;
 
 // // puppeteer usage as normal
 
 
-// const scrapePBPTOT = async (data) => {
+// const scrapePBPTOT = async (data, key) => {
 //     const client = redis.createClient({
 //         url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739",
 //         socket: {
@@ -53,10 +70,10 @@
             
 //             const compressedString = cjson.compress.toString(data);
 //             console.log(compressedString);
-//             await client.set("teamPlayType", compressedString);
+//             await client.set(key+"PT", compressedString);
 
 //             await client.quit();
-//             return newJ;
+            
       
 // };
 
@@ -159,14 +176,16 @@
 //             acceptLanguage: `en-US,en;q=0.9`,
 //             platform: `Win32`,
 //         };
+//         for (const [key, value] of Object.entries(teamColors)) {
+//             const teamPlays = {};
 //         for (let j = 0; j < urls.length; j++) {
-//             const pt = urls[j].split("teams/")[1].split("/")[0].replace("-", "_").replace("-", "_");
+//             const pt = urls[j].split("players/")[1].split("/")[0].replace("-", "_").replace("-", "_");
             
 //             await page._client.send(`Network.setUserAgentOverride`, override);
 
-//             await page.goto(urls[j]);
+//             await page.goto(urls[j]+"*"+key);
 
-//             await page.waitForSelector(".nba-stat-table", { timeout: 10000 });
+//             await page.waitForSelector(".nba-stat-table", { timeout: 20000 });
 
 //             const bodyO = await page.evaluate(() => {
 //                 return document.querySelector(".nba-stat-table__overflow").innerHTML;
@@ -177,30 +196,46 @@
 //             // '<!DOCTYPE html><p>Bye moon</p>'
 
 //             $("tr").each(function (index, element) {
+//                 let name = "";
 //                 const teamValues = {};
 //                 var colSize = $(element).find("td").length;
 //                 const main = index - 1;
+                
 //                 if (index !== 0) {
 //                     $(element)
 //                         .find("td")
 //                         .each(function (index2, element) {
 //                             var colVal = $(element).text();
-//                             if (index2 === 0 && teamPlays.length < 30) {
-//                                 teamPlays.push({ name: colVal.replace(/(\r\n|\n|\r)/gm, "").replace(/\s/g, "") });
+                            
+                            
+//                             if (index2 ===0) {
+//                                 name = colVal.replace(/(\r\n|\n|\r)/gm, "").replace(/\s/g, "").replace("'", "").replace(".", "").replace("-","");
+                                
+//                                 if (!(name in teamPlays)) {
+                                    
+//                                     teamPlays[name] =  {};
+                                    
+//                                 }
 //                             }
-//                             if (index2 === 3) {
-//                                 teamPlays[main][pt + "Freq"] = colVal;
+//                             if (index2 === 4) {
+                                
+//                                 teamPlays[name][pt + "Freq"] = colVal;
 //                             }
-//                             if (index2 === 15) {
-//                                 teamPlays[main][pt + "Perc"] = colVal;
+//                             if (index2 === 16) {
+                                
+//                                 teamPlays[name][pt + "Freq"] = colVal;
+//                                 console.log(name + " " + pt);
 //                             }
 //                         });
 //                 }
 //             });
-//             console.log(teamPlays);
-//             if (j === urls.length-1) {
-//                 scrapePBPTOT(teamPlays);
-//             }
+            
+            
 //         }
+//         scrapePBPTOT(teamPlays, key); 
+         
+//     }
+    
+    
 //     });
-// console.log(teamPlays);
+
