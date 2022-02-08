@@ -674,6 +674,51 @@ const getKeyCache = async (key) => {
   
 };
 
+const postTrend = async (data) => {
+  const client = redis.createClient({
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739",
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    },
+  });
+
+  
+  client.on("error", (err) => console.log("Redis Client Error", err));
+  await client.connect();
+  
+
+  let json = await client.get('trend');
+  
+
+  if (json ) {
+    const restoredFromString = cjson.decompress.fromString(json);
+    const obj1 = JSON.parse(restoredFromString);
+    const obj2 = JSON.parse(data);
+    const mergedObject = {
+      ...obj1,
+      ...obj2
+    };
+    const compressedString = cjson.compress.toString( json2 );
+    await client.set("trend", compressedString);
+    
+
+      
+
+    
+  } else {
+    
+    const compressedString = cjson.compress.toString( data );
+    await client.set("trend", compressedString);
+    await client.quit();
+
+
+    
+  }
+
+  
+};
+
 
 const scrapePBPTOT = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
@@ -1120,3 +1165,4 @@ module.exports.scrapePBPTOTTeam = scrapePBPTOTTeam;
 module.exports.getTeamProf = getTeamProf ;
 module.exports.getTeamDProf = getTeamDProf;
 module.exports.getKeyCache = getKeyCache;
+module.exports.postTrend = postTrend;

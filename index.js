@@ -215,6 +215,15 @@ app.get('/keyCache', (req, res) => {
   
 })
 
+app.post('/', (req, res) => {
+
+  scraper
+      .postTrend(res.json(req.body))
+      .then(data => {
+        resolve(data)
+      })
+});
+
 
 
 app.listen(port, ip);
