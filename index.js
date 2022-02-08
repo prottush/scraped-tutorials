@@ -215,7 +215,7 @@ app.get('/keyCache', (req, res) => {
   
 })
 
-app.post('/', (req, res) => {
+app.post('/pst', (req, res) => {
 
   scraper
       .postTrend(res.json(req.body))
