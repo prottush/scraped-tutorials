@@ -675,6 +675,7 @@ const getKeyCache = async (key) => {
 };
 
 const postTrend = async (data) => {
+
   const client = redis.createClient({
     url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739",
     socket: {
@@ -688,19 +689,21 @@ const postTrend = async (data) => {
   await client.connect();
   
 
-  let json = await client.get('trend');
+  const json = await client.get('trend');
   
 
   if (json ) {
-    const restoredFromString = cjson.decompress.fromString(json);
-    const obj1 = JSON.parse(restoredFromString);
-    const obj2 = JSON.parse(data);
+    const obj1 = cjson.decompress.fromString(json);
+    
+    
     const mergedObject = {
       ...obj1,
-      ...obj2
+      ...data
     };
-    const compressedString = cjson.compress.toString( json2 );
-    await client.set("trend", compressedString);
+    
+    console.log(data);
+    const compressedString = cjson.compress.toString( mergedObject );
+   await client.set("trend", compressedString);
     
 
       
@@ -708,14 +711,14 @@ const postTrend = async (data) => {
     
   } else {
     
-    const compressedString = cjson.compress.toString( data );
-    await client.set("trend", compressedString);
-    await client.quit();
+    
+    await client.set("trend", JSON.stringify(data));
+    
 
 
     
   }
-
+  await client.quit();
   
 };
 

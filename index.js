@@ -4,8 +4,13 @@ const scraper = require('./scraper')
 const app = express();
 const url = require("url")
 const ip = process.env.IP || '0.0.0.0';
+var cors = require('cors')
+
+
 const port = process.env.PORT || 8080;
 
+app.use(cors())
+app.use(express.json());
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", '*');
@@ -216,14 +221,13 @@ app.get('/keyCache', (req, res) => {
 })
 
 app.post('/pst', (req, res) => {
-
+  res.json(req.body);
   scraper
-      .postTrend(res.json(req.body))
-      .then(data => {
-        resolve(data)
-      })
+      .postTrend(req.body)
+
 });
 
 
 
 app.listen(port, ip);
+
