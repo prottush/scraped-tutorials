@@ -1042,14 +1042,22 @@ const postTrend = async (data, clean = false) => {
     
     await client.connect();
     let json = await client.get("trend");
+    
     if (clean) {
         await client.set("trend", "");
+        await client.set("trend2", "");
+        await client.set("trend3", "");
         return;
     }
     for (const property in players) {
+        const name = property.split(" ");
+        const pID = players[name[0] + " " + name[1]];
+        let json = await client.get("trend");
+        let json2 = await client.get("trend2");
+        let json3 = await client.get("trend3");
+        let jsonN = await client.get(name[0] + "_" + name[1]);
         if (cPlayers.includes(property)) {
-            const name = property.split(" ");
-            const pID = players[name[0] + " " + name[1]];
+            
 
             const result = await doRequest(
                 "https://api.pbpstats.com/get-game-logs/nba?Season=2021-22&SeasonType=Regular%20Season&EntityType=Player&EntityId=" + pID
@@ -1134,20 +1142,67 @@ const postTrend = async (data, clean = false) => {
             if (pd) {
                 
                 if (pd ) {
-                    const data = computeRollingShotChart(pd);
-                    if (data.length >= 15 && data[data.length - 1].date.split("-")[0] === "2022") {
+                    const data = computeRollingShotChart(pd, 5);
+                    if (data.length >= 20 && data[data.length - 1].date.split("-")[0] === "2022") {
                         const trend = data.slice(data.length - 1, data.length);
                         const tdat = { [name[0] + " " + name[1]]: trend };
-                        const obj1 = cjson.decompress.fromString(json);
+                        let obj = {};
+                        if (json) {
+                            obj = cjson.decompress.fromString(json);
+                        }
 
                         const mergedObject = {
-                            ...obj1,
+                            ...obj,
                             ...tdat,
                         };
                         const compressedString = cjson.compress.toString(mergedObject);
                         await client.set("trend", compressedString);
                         console.log(name[0], name[1], compressedString.length);
                     }
+                    const data10 = computeRollingShotChart(pd, 10);
+                    if (data10.length >= 20 && data10[data10.length - 1].date.split("-")[0] === "2022") {
+                        const trend2 = data10.slice(data10.length - 1, data10.length);
+                        const tdat2 = { [name[0] + " " + name[1]]: trend2 };
+                        let obj2 = {};
+                        if (json2) {
+                            obj2 = cjson.decompress.fromString(json2);
+                        }
+
+                        const mergedObject2 = {
+                            ...obj2,
+                            ...tdat2,
+                        };
+                        const compressedString2 = cjson.compress.toString(mergedObject2);
+                        await client.set("trend2", compressedString2);
+                        console.log(name[0], name[1], compressedString2.length);
+                    }
+                    const data20 = computeRollingShotChart(pd, 20);
+                    if (data20.length >= 20 && data20[data20.length - 1].date.split("-")[0] === "2022") {
+                        const trend3 = data20.slice(data20.length - 1, data20.length);
+                        const tdat3 = { [name[0] + " " + name[1]]: trend3 };
+                        let obj3 = {};
+                        if (json3) {
+                            obj3 = cjson.decompress.fromString(json3);
+                        }
+
+                        const mergedObject3 = {
+                            ...obj3,
+                            ...tdat3,
+                        };
+                        const compressedString3 = cjson.compress.toString(mergedObject3);
+                        await client.set("trend3", compressedString3);
+                        console.log(name[0], name[1], compressedString3.length);
+                    }
+                    if (jsonN) {
+                        let obj4 = cjson.decompress.fromString(jsonN);
+                        obj4 = obj4.filter(word => word.Date.split("-")[0] !== "2022");
+                        pd4 = pd.filter(word => word.Date.split("-")[0] === "2022");
+                        newO = obj4.concat(pd4);
+                        const compressedString4 = cjson.compress.toString(newO);
+                        await client.set(name[0] + "_" + name[1], compressedString4);
+                        console.log(name[0], name[1], "2022" );
+                    }
+
                 }
             }
         }
