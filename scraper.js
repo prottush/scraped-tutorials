@@ -587,7 +587,7 @@ const getTeamProf = async () => {
     
   } else {
     await client.quit();
-    console.log(json);
+    
     const restoredFromString = cjson.decompress.fromString(json);
     
 
@@ -625,7 +625,7 @@ const getTeamDProf = async () => {
     
   } else {
     await client.quit();
-    console.log(json);
+    
     const restoredFromString = cjson.decompress.fromString(json);
     
 
@@ -663,10 +663,10 @@ const getKeyCache = async (key) => {
     
   } else {
     await client.quit();
-    console.log(json);
+    
     const restoredFromString = cjson.decompress.fromString(json);
     
-
+    console.log("TREND REQ");
     return restoredFromString;
     
   }
@@ -701,7 +701,7 @@ const postTrend = async (data) => {
       ...data
     };
     
-    console.log(data);
+    
     const compressedString = cjson.compress.toString( mergedObject );
    await client.set("trend", compressedString);
     
@@ -819,7 +819,6 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
             ...keepAttrs
         }) => keepAttrs
     );
-      console.log(json2);
       const compressedString = cjson.compress.toString( json2 );
       
       await client.set(fname + "_" + lname, compressedString);
@@ -841,7 +840,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
     
   } else {
     await client.quit();
-    console.log(json);
+
     const restoredFromString = cjson.decompress.fromString(json);
     console.log(fname, json.length, "cached");
 
@@ -892,7 +891,7 @@ const scrapePBPTOTTeam = async (team, type="Team", hard="soft") => {
   }
 } else {
   await client.quit();
-  console.log(json);
+  
   const restoredFromString = cjson.decompress.fromString(json);
   console.log(team, json.length, "cached");
 
