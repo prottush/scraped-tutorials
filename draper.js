@@ -3,6 +3,7 @@ const Papa = require("papaparse");
 const request = require("request");
 const cjson = require("compressed-json");
 const players = {
+    "Jakob Poeltl": "1627751",
     "James Harden": "201935",
     "Andrew Wiggins": "203952",
     "Damian Lillard": "203081",
@@ -235,7 +236,7 @@ const players = {
     "Tyson Chandler": "2199",
     "CJ Miles": "101139",
     "Monta Ellis": "101145",
-    "Jakob Poeltl": "1627751",
+    
     "Dillon Brooks": "1628415",
     "Austin Reaves": "1630559",
     "Trey Lyles": "1626168",
@@ -699,7 +700,7 @@ const cPlayers = [
 ];
 
 const computeRollingShotChart = (data = {}, window = 15, type = "rft") => {
-    window = window + 1;
+    window = window;
     let currRFGA = 0;
     let currTeam = data[0].Team;
     let totRFGA = 0;
@@ -773,48 +774,48 @@ const computeRollingShotChart = (data = {}, window = 15, type = "rft") => {
             totRFGM = totRFGM + pIntA(game.AtRimFGM);
 
             totAss = totAss + pIntA(game.Assists);
-            currAss = currAss + pIntA(game.Assists) - (winSet ? pIntA(data[i - window + 1].Assists) : 0);
+            currAss = currAss + pIntA(game.Assists) - (winSet ? pIntA(data[i - window].Assists) : 0);
 
             totSRMA = totSRMA + pIntA(game.ShortMidRangeFGA);
-            currSRMA = currSRMA + pIntA(game.ShortMidRangeFGA) - (winSet ? pIntA(data[i - window + 1].ShortMidRangeFGA) : 0);
+            currSRMA = currSRMA + pIntA(game.ShortMidRangeFGA) - (winSet ? pIntA(data[i - window].ShortMidRangeFGA) : 0);
 
             totLRMA = totLRMA + pIntA(game.LongMidRangeFGA);
-            currLRMA = currLRMA + pIntA(game.LongMidRangeFGA) - (winSet ? pIntA(data[i - window + 1].LongMidRangeFGA) : 0);
+            currLRMA = currLRMA + pIntA(game.LongMidRangeFGA) - (winSet ? pIntA(data[i - window].LongMidRangeFGA) : 0);
 
             tot3PA = tot3PA + pIntA(game.FG3A);
-            curr3PA = curr3PA + pIntA(game.FG3A) - (winSet ? pIntA(data[i - window + 1].FG3A) : 0);
+            curr3PA = curr3PA + pIntA(game.FG3A) - (winSet ? pIntA(data[i - window].FG3A) : 0);
 
             tot3PM = tot3PM + pIntA(game.FG3M);
-            curr3PM = curr3PM + pIntA(game.FG3M) - (winSet ? pIntA(data[i - window + 1].FG3M) : 0);
+            curr3PM = curr3PM + pIntA(game.FG3M) - (winSet ? pIntA(data[i - window].FG3M) : 0);
 
             totFTA = totFTA + pIntA(game.FTA);
-            currFTA = currFTA + pIntA(game.FTA) - (winSet ? pIntA(data[i - window + 1].FTA) : 0);
+            currFTA = currFTA + pIntA(game.FTA) - (winSet ? pIntA(data[i - window].FTA) : 0);
 
             totFTM = totFTM + pIntA(game.FtPoints);
-            currFTM = currFTM + pIntA(game.FtPoints) - (winSet ? pIntA(data[i - window + 1].FtPoints) : 0);
+            currFTM = currFTM + pIntA(game.FtPoints) - (winSet ? pIntA(data[i - window].FtPoints) : 0);
 
             totP = totP + pIntA(game.Points);
-            currP = currP + pIntA(game.Points) - (winSet ? pIntA(data[i - window + 1].Points) : 0);
+            currP = currP + pIntA(game.Points) - (winSet ? pIntA(data[i - window].Points) : 0);
 
             totPM = totPM + pIntA(game.PlusMinus) + 50;
-            currPM = currPM + pIntA(game.PlusMinus) + 50 - (winSet ? pIntA(data[i - window + 1].PlusMinus) + 50 : 0);
+            currPM = currPM + pIntA(game.PlusMinus) + 50 - (winSet ? pIntA(data[i - window].PlusMinus) + 50 : 0);
 
             totM = totM + pIntA(game.Minutes.split(":")[0]);
-            currM = currM + pIntA(game.Minutes.split(":")[0]) - (winSet ? pIntA(data[i - window + 1].Minutes.split(":")[0]) : 0);
+            currM = currM + pIntA(game.Minutes.split(":")[0]) - (winSet ? pIntA(data[i - window].Minutes.split(":")[0]) : 0);
 
-            currRFGA = currRFGA + pIntA(game.AtRimFGA) - (winSet ? pIntA(data[i - window + 1].AtRimFGA) : 0);
-            currRFGM = currRFGM + pIntA(game.AtRimFGM) - (winSet ? pIntA(data[i - window + 1].AtRimFGM) : 0);
+            currRFGA = currRFGA + pIntA(game.AtRimFGA) - (winSet ? pIntA(data[i - window].AtRimFGA) : 0);
+            currRFGM = currRFGM + pIntA(game.AtRimFGM) - (winSet ? pIntA(data[i - window].AtRimFGM) : 0);
 
             totFGA = totFGA + pIntA(game.FG3A) + pIntA(game.FG2A);
-            currFGA = currFGA + pIntA(game.FG3A) + pIntA(game.FG2A) - (winSet ? pIntA(data[i - window + 1].FG3A) + pIntA(data[i - window + 1].FG2A) : 0);
+            currFGA = currFGA + pIntA(game.FG3A) + pIntA(game.FG2A) - (winSet ? pIntA(data[i - window].FG3A) + pIntA(data[i - window].FG2A) : 0);
             totBP = totBP + pIntA(game.BadPassTurnovers);
-            currBP = currBP + pIntA(game.BadPassTurnovers) - (winSet ? pIntA(data[i - window + 1].BadPassTurnovers) : 0);
+            currBP = currBP + pIntA(game.BadPassTurnovers) - (winSet ? pIntA(data[i - window].BadPassTurnovers) : 0);
 
             totOffP = totOffP + pIntA(game.OffPoss);
-            currOffP = currOffP + pIntA(game.OffPoss) - (winSet ? pIntA(data[i - window + 1].OffPoss) : 0);
+            currOffP = currOffP + pIntA(game.OffPoss) - (winSet ? pIntA(data[i - window].OffPoss) : 0);
 
             totTPD = totTPD + pIntA(game.Avg2ptShotDistance) * pIntA(game.FG2A);
-            currTPD = currTPD + pIntA(game.Avg2ptShotDistance) * pIntA(game.FG2A) - (winSet ? pIntA(data[i - window + 1].Avg2ptShotDistance) * pIntA(data[i - window + 1].FG2A) : 0);
+            currTPD = currTPD + pIntA(game.Avg2ptShotDistance) * pIntA(game.FG2A) - (winSet ? pIntA(data[i - window].Avg2ptShotDistance) * pIntA(data[i - window].FG2A) : 0);
 
             const ts = ((currP / (2 * (currFGA + 0.44 * currFTA))) * 100).toFixed(2);
 
@@ -1064,7 +1065,7 @@ const postTrend = async (data, clean = false) => {
             );
 
             const newJ = JSON.parse(result).multi_row_table_data;
-            const pd = newJ.map(
+            let pd = newJ.map(
                 ({
                     Arc3Assists,
                     AtRimAccuracy,
@@ -1142,6 +1143,16 @@ const postTrend = async (data, clean = false) => {
             if (pd) {
                 
                 if (pd ) {
+                    if (jsonN) {
+                        let obj4 = cjson.decompress.fromString(jsonN);
+                        obj4 = obj4.filter(word => word.Date.split("-")[0] !== "2022");
+                        pd4 = pd.filter(word => word.Date.split("-")[0] === "2022");
+                        newO = obj4.concat(pd4);
+                        pd = newO;
+                        const compressedString4 = cjson.compress.toString(newO);
+                        await client.set(name[0] + "_" + name[1], compressedString4);
+                        console.log(name[0], name[1], "2022" );
+                    }
                     const data = computeRollingShotChart(pd, 5);
                     if (data.length >= 20 && data[data.length - 1].date.split("-")[0] === "2022") {
                         const trend = data.slice(data.length - 1, data.length);
@@ -1193,15 +1204,7 @@ const postTrend = async (data, clean = false) => {
                         await client.set("trend3", compressedString3);
                         console.log(name[0], name[1], compressedString3.length);
                     }
-                    if (jsonN) {
-                        let obj4 = cjson.decompress.fromString(jsonN);
-                        obj4 = obj4.filter(word => word.Date.split("-")[0] !== "2022");
-                        pd4 = pd.filter(word => word.Date.split("-")[0] === "2022");
-                        newO = obj4.concat(pd4);
-                        const compressedString4 = cjson.compress.toString(newO);
-                        await client.set(name[0] + "_" + name[1], compressedString4);
-                        console.log(name[0], name[1], "2022" );
-                    }
+                    
 
                 }
             }
