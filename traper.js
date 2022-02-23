@@ -3,11 +3,8 @@ const Papa = require('papaparse')
 const request = require('request')
 const cjson = require('compressed-json')
 const players = {
-  'LeBron James': '2544',
-  'Reggie Bullock': '203493',
-  'Jakob Poeltl': '1627751',
   'Austin Reaves': '1630559',
-    
+    'LeBron James': '2544',
     'Cam Thomas': '1630560',
     'Cole Anthony': '1630175', 
     'Jalen Suggs': '1630591',
@@ -17,7 +14,7 @@ const players = {
     'Chris Duarte': '1630537',
     'Franz Wagner': '1630532',
 
-  
+  'Jakob Poeltl': '1627751',
   'James Harden': '201935',
   'Andrew Wiggins': '203952',
   'Damian Lillard': '203081',
@@ -211,7 +208,7 @@ const players = {
   'Bam Adebayo': '1628389',
   'Jarrett Allen': '1628386',
   "Royce O'Neale": '1626220',
-  
+  'Reggie Bullock': '203493',
   'Taurean Prince': '1627752',
   'JR Smith': '2747',
   'Mikal Bridges': '1628969',
@@ -721,25 +718,54 @@ const cPlayers = [
   'Luguentz Dort'
 ]
 
-const computeRollingShotChart =  (
-  data,
-  window = 15,
-  type = 'rftr',
-  date = '2013-14',
-  tableTrend = false
-)=> {
-  const seasonMap = {
-    '2013-14': Date.parse('2013-3-30'),
-    '2014-15': Date.parse('2014-10-27'),
-    '2015-16': Date.parse('2015-10-27'),
-    '2016-17': Date.parse('2016-10-25'),
-    '2017-18': Date.parse('2017-10-27'),
-    '2018-19': Date.parse('2018-10-26'),
-    '2019-20': Date.parse('2020-10-22'),
-    '2020-21': Date.parse('2020-12-22'),
-    '2021-22': Date.parse('2021-10-19')
-  }
-  // helper function
+const computeRollingShotChart = (data = {}, window = 15, type = 'rft') => {
+  window = data.length < window ? data.length-2 : window;
+
+  let currRFGA = 0
+  let currTeam = data[0].Team
+  let totRFGA = 0
+  let currRFGM = 0
+  let totRFGM = 0
+  let totBP = 0
+  let currBP = 0
+  const nData = []
+  let winSet = false
+
+  let currFGA = 0
+  let totFGA = 0
+  let currSRMA = 0
+  let totSRMA = 0
+  let currLRMA = 0
+  let totLRMA = 0
+
+  let tot3PA = 0
+  let curr3PA = 0
+  let curr3PM = 0
+  let tot3PM = 0
+
+  let currFTA = 0
+  let currFTM = 0
+  let totFTA = 0
+  let totFTM = 0
+
+  let currP = 0
+  let totP = 0
+
+  let currM = 0
+  let totM = 0
+
+  let totOffP = 0
+  let currOffP = 0
+
+  let currAss = 0
+  let totAss = 0
+
+  let currPM = 0
+  let totPM = 0
+
+  let currTPD = 0
+  let totTPD = 0
+
   const pIntA = i => {
     if (typeof i === 'undefined') {
       return 0
@@ -749,502 +775,210 @@ const computeRollingShotChart =  (
       return parseInt(i)
     }
   }
-
-  let nData = []
-  let teamChart = []
-  let winSet = false
-
-  const stat1 = [
-    'ShortMidRangeFGA',
-    'LongMidRangeFGA',
-    'ShortMidRangeFGM',
-    'AtRimPctAssisted',
-    'LongMidRangePctAssisted',
-    'PtsUnassisted3s',
-    'LongMidRangeFGM',
-    'Assists',
-    'FtPoints',
-    'AtRimFGM',
-    'AtRimFGA',
-    'BadPassTurnovers',
-    'Steals',
-    'Blocks',
-    'FG3A',
-    'Minutes',
-    'FG3M',
-    'FG2M',
-    'FG2A',
-    'FG3A',
-    'FTA',
-    'PlusMinus',
-    'Rebounds',
-    'Points',
-    'OffPoss',
-    'DefPoss',
-    'DefRebounds',
-    'Arc3FGM',
-    'Arc3FGA',
-    'OffRebounds',
-    'LiveBallTurnovers',
-    'Corner3FGA',
-    'Corner3FGM',
-    'FoulsDrawn',
-    'ShotQualityAvg',
-    'OnDefRtg',
-    'OnOffRtg',
-    'PtsUnassisted2s',
-    'PtsUnassisted3s',
-    'AssistPoints'
-  ]
-
-  const stats = [...new Set(stat1)];
-
-  const rStats = {}
-
-  // initialize rolling stat object
-  for (let i = 0; i < stats.length; i++) {
-    rStats['curr' + stats[i]] = 0
-    rStats['tot' + stats[i]] = 0
-  }
-
-
-  data = data.filter(k => Date.parse(k.Date) > seasonMap[date])
-
-
-  window = window > data.length? data.length -2  : window;
-  let currRFGA = 0
-  let currTeam = data[window + 1].Team
-
-  let totRFGA = 0
-  let currRFGM = 0
-  let totRFGM = 0
-
-  let currFGA = 0
-  let totFGA = 0
-
-  let currSRMA = 0
-  let totSRMA = 0
-  let currLRMA = 0
-  let totLRMA = 0
-
-  let currFTA = 0
-  let currFTM = 0
-  let totFTA = 0
-  let totFTM = 0
-
-  let currRimA = 0;
-  let totRimA = 0;
-
-  let currM = 0
-  let totM = 0
-
-  let currPM = 0
-  let totPM = 0
-
-  let currTPD = 0
-  let totTPD = 0
+  const teamChart = []
 
   for (let i = 1; i < data.length; i++) {
-    let game = data[i]
+    const game = data[i]
 
-    // Date windows for team colors
-    if (winSet && (currTeam !== game.Team || i === data.length -1  )) {
-      teamChart.push({
-        team: currTeam,
-        gameE: game.Date,
-        gameS:
-          teamChart.length === 0
-            ? data[window].Date
-            : teamChart[teamChart.length - 1].gameE
-      })
-      currTeam = game.Team
+    if (type !== 'rbpsd') {
+      if (currTeam !== game.Team || i === data.length - 1) {
+        teamChart.push({
+          team: currTeam,
+          gameE: game.Date,
+          gameS:
+            teamChart.length === 0
+              ? data[1].Date
+              : teamChart[teamChart.length - 1].gameE
+        })
+        currTeam = game.Team
+      }
+
+      totRFGA = totRFGA + pIntA(game.AtRimFGA)
+      totRFGM = totRFGM + pIntA(game.AtRimFGM)
+
+      totAss = totAss + pIntA(game.Assists)
+      currAss =
+        currAss +
+        pIntA(game.Assists) -
+        (winSet ? pIntA(data[i - window].Assists) : 0)
+
+      totSRMA = totSRMA + pIntA(game.ShortMidRangeFGA)
+      currSRMA =
+        currSRMA +
+        pIntA(game.ShortMidRangeFGA) -
+        (winSet ? pIntA(data[i - window].ShortMidRangeFGA) : 0)
+
+      totLRMA = totLRMA + pIntA(game.LongMidRangeFGA)
+      currLRMA =
+        currLRMA +
+        pIntA(game.LongMidRangeFGA) -
+        (winSet ? pIntA(data[i - window].LongMidRangeFGA) : 0)
+
+      tot3PA = tot3PA + pIntA(game.FG3A)
+      curr3PA =
+        curr3PA + pIntA(game.FG3A) - (winSet ? pIntA(data[i - window].FG3A) : 0)
+
+      tot3PM = tot3PM + pIntA(game.FG3M)
+      curr3PM =
+        curr3PM + pIntA(game.FG3M) - (winSet ? pIntA(data[i - window].FG3M) : 0)
+
+      totFTA = totFTA + pIntA(game.FTA)
+      currFTA =
+        currFTA + pIntA(game.FTA) - (winSet ? pIntA(data[i - window].FTA) : 0)
+
+      totFTM = totFTM + pIntA(game.FtPoints)
+      currFTM =
+        currFTM +
+        pIntA(game.FtPoints) -
+        (winSet ? pIntA(data[i - window].FtPoints) : 0)
+
+      totP = totP + pIntA(game.Points)
+      currP =
+        currP +
+        pIntA(game.Points) -
+        (winSet ? pIntA(data[i - window].Points) : 0)
+
+      totPM = totPM + pIntA(game.PlusMinus) + 50
+      currPM =
+        currPM +
+        pIntA(game.PlusMinus) +
+        50 -
+        (winSet ? pIntA(data[i - window].PlusMinus) + 50 : 0)
+
+      totM = totM + pIntA(game.Minutes.split(':')[0])
+      currM =
+        currM +
+        pIntA(game.Minutes.split(':')[0]) -
+        (winSet ? pIntA(data[i - window].Minutes.split(':')[0]) : 0)
+
+      currRFGA =
+        currRFGA +
+        pIntA(game.AtRimFGA) -
+        (winSet ? pIntA(data[i - window].AtRimFGA) : 0)
+      currRFGM =
+        currRFGM +
+        pIntA(game.AtRimFGM) -
+        (winSet ? pIntA(data[i - window].AtRimFGM) : 0)
+
+      totFGA = totFGA + pIntA(game.FG3A) + pIntA(game.FG2A)
+      currFGA =
+        currFGA +
+        pIntA(game.FG3A) +
+        pIntA(game.FG2A) -
+        (winSet
+          ? pIntA(data[i - window].FG3A) + pIntA(data[i - window].FG2A)
+          : 0)
+      totBP = totBP + pIntA(game.BadPassTurnovers)
+      currBP =
+        currBP +
+        pIntA(game.BadPassTurnovers) -
+        (winSet ? pIntA(data[i - window].BadPassTurnovers) : 0)
+
+      totOffP = totOffP + pIntA(game.OffPoss)
+      currOffP =
+        currOffP +
+        pIntA(game.OffPoss) -
+        (winSet ? pIntA(data[i - window].OffPoss) : 0)
+
+      totTPD = totTPD + pIntA(game.Avg2ptShotDistance) * pIntA(game.FG2A)
+      currTPD =
+        currTPD +
+        pIntA(game.Avg2ptShotDistance) * pIntA(game.FG2A) -
+        (winSet
+          ? pIntA(data[i - window].Avg2ptShotDistance) *
+            pIntA(data[i - window].FG2A)
+          : 0)
+
+      const ts = ((currP / (2 * (currFGA + 0.44 * currFTA))) * 100).toFixed(2)
+
+      const rtpd = ((currTPD / (currSRMA + currLRMA + currRFGA)) * 4).toFixed(2)
+
+      const mpg = (currM / (winSet ? window : i)).toFixed(2)
+
+      const ppg = (currP / (winSet ? window : i)).toFixed(2)
+
+      const xpm = (currPM / (winSet ? window : i)).toFixed(2)
+
+      const rimfq = ((currRFGA / currFGA) * 100).toFixed(2)
+      const tpr = ((curr3PM / curr3PA) * 100).toFixed(2)
+      const mfq = (((currSRMA + currLRMA) / currFGA) * 100).toFixed(2)
+      const tfq = ((curr3PA / currFGA) * 100).toFixed(2)
+
+      if (i === data.length - 1) {
+        nData.push({
+          rsq: ((currRFGM / currRFGA) * 100).toFixed(2),
+          gameN: i,
+          rfga: pIntA(game.AtRimFGA),
+          date: game.Date,
+          opp: game.Opponent,
+          rimfq: rimfq,
+          mfq: mfq,
+          tfq: tfq,
+          team: game.Team,
+          min: game.Minutes,
+          points: pIntA(game.Points),
+          rtpd: rtpd,
+          reb: pIntA(game.Rebounds),
+          avrsq: ((totRFGM / totRFGA) * 100).toFixed(2),
+          avrimfq: ((totRFGA / totFGA) * 100).toFixed(2),
+          avmfq: (((totSRMA + totLRMA) / totFGA) * 100).toFixed(2),
+          avxpm: 50,
+          avtfq: ((tot3PA / totFGA) * 100).toFixed(2),
+          avtpr: ((tot3PM / tot3PA) * 100).toFixed(2),
+          avftr: ((totFTA / totFGA) * 100).toFixed(2),
+          avrbp: ((totBP / totAss) * 100).toFixed(2),
+          avts: ((totP / (2 * (totFGA + 0.44 * totFTA))) * 100).toFixed(2),
+          avppg: (totP / data.length).toFixed(2),
+          avmpg: (totM / data.length).toFixed(2),
+          avrft: ((totFTM / totFTA) * 100).toFixed(2),
+          assists: pIntA(game.Assists),
+          steals: pIntA(game.Steals),
+          blocks: pIntA(game.Blocks),
+          rft: ((currFTM / currFTA) * 100).toFixed(2),
+          ts: ts,
+          tpr: tpr,
+          xpm: xpm,
+          ppg: ppg,
+          ftr: ((currFTA / currFGA) * 100).toFixed(2),
+          rbp: ((currBP / currAss) * 100).toFixed(2),
+          mpg: mpg
+        })
+      } else {
+        nData.push({
+          rsq: ((currRFGM / currRFGA) * 100).toFixed(2),
+          gameN: i,
+          rfga: pIntA(game.AtRimFGA),
+          date: game.Date,
+          opp: game.Opponent,
+          rimfq: rimfq,
+          mfq: mfq,
+          tfq: tfq,
+          team: game.Team,
+          min: game.Minutes,
+          points: pIntA(game.Points),
+          rtpd: rtpd,
+          reb: pIntA(game.Rebounds),
+
+          assists: pIntA(game.Assists),
+          steals: pIntA(game.Steals),
+          blocks: pIntA(game.Blocks),
+          rft: ((currFTM / currFTA) * 100).toFixed(2),
+          ts: ts,
+          tpr: tpr,
+          xpm: xpm,
+          ppg: ppg,
+          ftr: ((currFTA / currFGA) * 100).toFixed(2),
+          rbp: ((currBP / currAss) * 100).toFixed(2),
+          mpg: mpg
+        })
+      }
     }
 
-    // Roll Function
-    for (let j = 0; j < stats.length; j++) {
-      if (stats[i] === 'OffensiveRating ') game = data[i]
-      rStats['curr' + stats[j]] =
-        rStats['curr' + stats[j]] +
-        pIntA(game[stats[j]]) -
-        (winSet ? pIntA(data[i - window][stats[j]]) : 0)
-      rStats['tot' + stats[j]] =
-        rStats['tot' + stats[j]] + pIntA(game[stats[j]])
-    }
-
-    currRimA = currRimA + (pIntA(game.AtRimFGM) * pIntA(game.AtRimPctAssisted)) -  (winSet ? (pIntA(data[i - window].AtRimFGM) * pIntA(data[i - window].AtRimPctAssisted)) : 0);
-    totRimA = totRimA + (pIntA(game.AtRimFGM) * pIntA(game.AtRimPctAssisted));
-
-    totRFGA = totRFGA + pIntA(game.AtRimFGA)
-    totRFGM = totRFGM + pIntA(game.AtRimFGM)
-
-    totSRMA = totSRMA + pIntA(game.ShortMidRangeFGA)
-    currSRMA =
-      currSRMA +
-      pIntA(game.ShortMidRangeFGA) -
-      (winSet ? pIntA(data[i - window].ShortMidRangeFGA) : 0)
-
-    totLRMA = totLRMA + pIntA(game.LongMidRangeFGA)
-    currLRMA =
-      currLRMA +
-      pIntA(game.LongMidRangeFGA) -
-      (winSet ? pIntA(data[i - window].LongMidRangeFGA) : 0)
-
-    // shift +/- by 50, to display on graph
-    totPM = totPM + pIntA(game.PlusMinus) + 50
-    currPM =
-      currPM +
-      pIntA(game.PlusMinus) +
-      50 -
-      (winSet ? pIntA(data[i - window].PlusMinus) + 50 : 0)
-
-    totM = totM + pIntA(game.Minutes.split(':')[0])
-    currM =
-      currM +
-      pIntA(game.Minutes.split(':')[0]) -
-      (winSet ? pIntA(data[i - window].Minutes.split(':')[0]) : 0)
-
-    currRFGA =
-      currRFGA +
-      pIntA(game.AtRimFGA) -
-      (winSet ? pIntA(data[i - window].AtRimFGA) : 0)
-    currRFGM =
-      currRFGM +
-      pIntA(game.AtRimFGM) -
-      (winSet ? pIntA(data[i - window].AtRimFGM) : 0)
-
-    totFGA = totFGA + pIntA(game.FG3A) + pIntA(game.FG2A)
-    currFGA =
-      currFGA +
-      pIntA(game.FG3A) +
-      pIntA(game.FG2A) -
-      (winSet
-        ? pIntA(data[i - window].FG3A) + pIntA(data[i - window].FG2A)
-        : 0)
-
-    totTPD = totTPD + pIntA(game.Avg2ptShotDistance) * pIntA(game.FG2A)
-    currTPD =
-      currTPD +
-      pIntA(game.Avg2ptShotDistance) * pIntA(game.FG2A) -
-      (winSet
-        ? pIntA(data[i - window].Avg2ptShotDistance) *
-          pIntA(data[i - window].FG2A)
-        : 0)
-
-    // calculate rate stats
-    const ts = (
-      (rStats['currPoints'] / (2 * (currFGA + 0.44 * rStats['currFTA']))) *
-      100
-    ).toFixed(2)
-
-    const mrm = (
-      ((rStats['currShortMidRangeFGM'] + rStats['currLongMidRangeFGM']) /
-        (rStats['currShortMidRangeFGA'] + rStats['currLongMidRangeFGA'])) *
-      100
-    ).toFixed(2)
-    const rtpd = ((currTPD / (currSRMA + currLRMA + currRFGA)) * 4).toFixed(2)
-    const mpg = (currM / (winSet ? window : i)).toFixed(2)
-    const ppg = (rStats['currPoints'] / (winSet ? window : i)).toFixed(2)
-    const apg = (rStats['currAssists'] / (winSet ? window : i)).toFixed(2)
-    const tpg = (
-      rStats['currLiveBallTurnovers'] / (winSet ? window : i)
-    ).toFixed(2)
-    const spg = (rStats['currSteals'] / (winSet ? window : i)).toFixed(2)
-    const rpg = (rStats['currRebounds'] / (winSet ? window : i)).toFixed(2)
-    const bpg = (rStats['currBlocks'] / (winSet ? window : i)).toFixed(2)
-    const rbp = (
-      rStats['currAssists'] / rStats['currBadPassTurnovers']
-    ).toFixed(2)
-    const xpm = (rStats['PlusMinus'] / (winSet ? window : i)).toFixed(2)
-    const ftr = ((rStats['currFTA'] / currFGA) * 100).toFixed(2)
-    const rft = ((rStats['currFtPoints'] / rStats['currFTA']) * 100).toFixed(
-      2
-    )
-
-    const ctpp = (
-      (rStats['currCorner3FGM'] / rStats['currCorner3FGA']) *
-      100
-    ).toFixed(2)
-
-    const rua = ((1-(currRimA/rStats['currAtRimFGM'])) *100).toFixed(2)
-
-    let mua = (((rStats['currPtsUnassisted2s'] - (currRimA*2))/(rStats['currFG2M']*2))*100).toFixed(2)
-    
-    mua = mua < 0 ? 0 : mua;
-
-    const tua = (
-      (rStats['currPtsUnassisted3s'] / (rStats['currFG3M'] * 3)) *
-      100
-    ).toFixed(2)
-
-    const arcpp = (
-      (rStats['currArc3FGM'] / rStats['currArc3FGA']) *
-      100
-    ).toFixed(2)
-    const tpr = ((rStats['currFG3M'] / rStats['currFG3A']) * 100).toFixed(2)
-    const efg = (
-      ((rStats['currFG3M'] + rStats['currFG2M'] + 0.5 * rStats['currFG3M']) /
-        currFGA) *
-      100
-    ).toFixed(2)
-    const mfq = (((currSRMA + currLRMA) / currFGA) * 100).toFixed(2)
-    const tfq = ((rStats['currFG3A'] / currFGA) * 100).toFixed(2)
-    const rimfq = ((currRFGA / currFGA) * 100).toFixed(2)
-    const offrtg = (
-      (rStats['currOnOffRtg'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-    const defrtg = (
-      (rStats['currOnDefRtg'] / rStats['currDefPoss']) *
-      75
-    ).toFixed(2)
-    const ppp = ((rStats['currPoints'] / rStats['currOffPoss']) * 75).toFixed(
-      2
-    )
-    const rpp = (
-      (rStats['currRebounds'] /
-        (rStats['currOffPoss'] + rStats['currDefPoss'])) *
-      75
-    ).toFixed(2)
-    const bpp = ((rStats['currBlocks'] / rStats['currDefPoss']) * 75).toFixed(
-      2
-    )
-    const spp = ((rStats['currSteals'] / rStats['currDefPoss']) * 75).toFixed(
-      2
-    )
-    const topp = (
-      (rStats['currLiveBallTurnovers'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-    const app = (
-      (rStats['currAssists'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-    const attr = (
-      rStats['currAssists'] / rStats['currLiveBallTurnovers']
-    ).toFixed(2)
-
-    const appp = (
-      (rStats['currAssistPoints'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-
-    const appg = (rStats['currAssistPoints'] / (winSet ? window : i)).toFixed(
-      2
-    )
-
-    const defrpp = (
-      (rStats['currDefRebounds'] / rStats['currDefPoss']) *
-      75
-    ).toFixed(2)
-    const defrpg = (
-      rStats['currDefRebounds'] / (winSet ? window : i)
-    ).toFixed(2)
-
-    const offrpp = (
-      (rStats['currOffRebounds'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-    const offrpg = (
-      rStats['currOffRebounds'] / (winSet ? window : i)
-    ).toFixed(2)
-
-    const fdpp = (
-      (rStats['currFoulsDrawn'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-    const fdpg = (rStats['currFoulsDrawn'] / (winSet ? window : i)).toFixed(2)
-
-    const ua2pp = (
-      (rStats['currPtsUnassisted2s'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-    const ua2pg = (
-      rStats['currPtsUnassisted2s'] / (winSet ? window : i)
-    ).toFixed(2)
-
-    const ua3pp = (
-      (rStats['currPtsUnassisted3s'] / rStats['currOffPoss']) *
-      75
-    ).toFixed(2)
-    const ua3pg = (
-      rStats['currPtsUnassisted3s'] / (winSet ? window : i)
-    ).toFixed(2)
-    
-    const mor= (((rStats['currAtRimFGA'] + rStats['currFG3A'])/(rStats['currFG3A'] + rStats['currFG2A']))*100).toFixed(2)
-    nData.push({
-      rsq: ((currRFGM / currRFGA) * 100).toFixed(2),
-      gameN: i,
-      rimfq: rimfq,
-      mfq: mfq,
-      efg: efg,
-      tfq: tfq,
-      rtpd: rtpd,
-      rft: rft,
-      ts: ts,
-      apg: apg,
-      ctpp: ctpp,
-      avrsq: ((totRFGM / totRFGA) * 100).toFixed(2),
-        avrimfq: ((totRFGA / totFGA) * 100).toFixed(2),
-        avmfq: (((totSRMA + totLRMA) / totFGA) * 100).toFixed(2),
-        avxpm: 50, // TODO: Change to percentage
-        avtfq: ((rStats['totFG3A'] / totFGA) * 100).toFixed(2),
-        avattr: (
-          rStats['totAssists'] / rStats['totLiveBallTurnovers']
-        ).toFixed(2),
-        avefg: (
-          ((rStats['totFG3M'] + rStats['totFG2M'] + 0.5 * rStats['totFG3M']) /
-            totFGA) *
-          100
-        ).toFixed(2),
-        avppp: ((rStats['totPoints'] / rStats['totOffPoss']) * 75).toFixed(2),
-        avrpp: ((rStats['totRebounds'] / rStats['totOffPoss']) * 75).toFixed(2),
-        avapg: (rStats['totAssists'] / data.length).toFixed(2),
-        
-        avapp: ((rStats['totAssists'] / rStats['totOffPoss']) * 75).toFixed(
-          2
-        ),
-        avmor: (((rStats['totAtRimFGA'] + rStats['totFG3A'])/(rStats['totFG3A'] + rStats['totFG2A']))*100).toFixed(2),
-        avtopp: (
-          (rStats['totLiveBallTurnovers'] / rStats['totOffPoss']) *
-          75
-        ).toFixed(2),
-        avtpg: ((rStats['totLiveBallTurnovers'] / data.length)).toFixed(2),
-        avspp: ((rStats['totSteals'] / rStats['totDefPoss']) * 75).toFixed(2),
-        avbpp: ((rStats['totBlocks'] / rStats['totDefPoss']) * 75).toFixed(2),
-        avtpr: ((rStats['totFG3M'] / rStats['totFG3A']) * 100).toFixed(2),
-        avftr: ((rStats['totFTA'] / totFGA) * 100).toFixed(2),
-        avrbp: (rStats['totAssists'] / rStats['totBadPassTurnovers']).toFixed(
-          2
-        ),
-        avctpp: (
-          (rStats['totCorner3FGM'] / rStats['totCorner3FGA']) *
-          100
-        ).toFixed(2),
-        avarcpp: (
-          (rStats['totArc3FGM'] / rStats['totArc3FGA']) *
-          100
-        ).toFixed(2),
-        avmrm: (
-          ((rStats['totShortMidRangeFGM'] + rStats['totLongMidRangeFGM']) /
-            (rStats['totShortMidRangeFGA'] + rStats['totLongMidRangeFGA'])) *
-          100
-        ).toFixed(2),
-        avappp: (
-          (rStats['totAssistPoints'] / rStats['totOffPoss']) *
-          75
-        ).toFixed(2),
-
-        avappg: (rStats['totAssistPoints'] / data.length).toFixed(2),
-        avdefrpp: (
-          (rStats['totDefRebounds'] / rStats['totDefPoss']) *
-          75
-        ).toFixed(2),
-        avdefrpg: (rStats['totDefRebounds'] / data.length).toFixed(2),
-        avoffrpp: (
-          (rStats['totOffRebounds'] / rStats['totOffPoss']) *
-          75
-        ).toFixed(2),
-        avoffrpg: (rStats['totOffRebounds'] / data.length).toFixed(2),
-        avfdpp: (
-          (rStats['totFoulsDrawn'] / rStats['totOffPoss']) *
-          75
-        ).toFixed(2),
-        avfdpg: (rStats['totFoulsDrawn'] / data.length).toFixed(2),
-        avts: (
-          (rStats['totPoints'] / (2 * (totFGA + 0.44 * rStats['totFTA']))) *
-          100
-        ).toFixed(2),
-        avppg: (rStats['totPoints'] / data.length).toFixed(2),
-        avrpg: ((rStats['totRebounds'] / data.length)*100).toFixed(2),
-
-        avoffrtg: (
-          (rStats['totOnOffRtg'] / rStats['totOffPoss']) *
-          75
-        ).toFixed(2),
-        avdefrtg: (
-          (rStats['totOnDefRtg'] / rStats['totDefPoss']) *
-          75
-        ).toFixed(2),
-        avrua: ((1-(totRimA/rStats['totAtRimFGM'])) *100).toFixed(2),
-
-        avmua: (((rStats['totPtsUnassisted2s'] - (totRimA*2))/(rStats['totFG2M']*2))*100).toFixed(2),
-        avtua: (
-          (rStats['totPtsUnassisted3s'] / (rStats['totFG3M'] * 3)) *
-          100
-        ).toFixed(2),
-        avspg: (rStats['totSteals'] / data.length).toFixed(2),
-        avrpg: (rStats['totRebounds'] / data.length).toFixed(2),
-        avbpg: (rStats['totBlocks'] / data.length).toFixed(2),
-        avmpg: (totM / data.length).toFixed(2),
-        avrft: ((rStats['totFtPoints'] / rStats['totFTA']) * 100).toFixed(2),
-        ua2pp: (
-          (rStats['totPtsUnassisted2s'] / rStats['totOffPoss']) *
-          75
-        ).toFixed(2),
-        ua2pg: (rStats['currPtsUnassisted2s'] / data.length).toFixed(2),
-        ua3pp: (
-          (rStats['totPtsUnassisted3s'] / rStats['totOffPoss']) *
-          75
-        ).toFixed(2),
-        ua3pg: (rStats['currPtsUnassisted3s'] / data.length).toFixed(2),
-      mor: mor,
-      bpg: bpg,
-      ua2pp: ua2pp,
-      ua2pg: ua2pg,
-      ua3pp: ua3pp,
-      ua3pg: ua3pg,
-      defrpp: defrpp,
-      defrpg: defrpg,
-      offrpp: offrpp,
-      offrpg: offrpg,
-      appp: appp,
-      mua: mua,
-      rua: rua,
-      tua: tua,
-      appg: appg,
-      mrm: mrm,
-      arcpp: arcpp,
-      spg: spg,
-      rpg: rpg,
-      tpr: tpr,
-      xpm: xpm,
-      ppg: ppg,
-      offrtg: offrtg,
-      fdpp: fdpp,
-      fdpg: fdpg,
-      defrtg: defrtg,
-      ftr: ftr,
-      rbp: rbp,
-      tpg: tpg,
-      ppp: ppp,
-      attr: attr,
-      app: app,
-      bpp: bpp,
-      spp: spp,
-      rpp: rpp,
-      topp: topp,
-      mpg: mpg,
-      reb: pIntA(game.Rebounds),
-      assists: pIntA(game.Assists),
-      steals: pIntA(game.Steals),
-      blocks: pIntA(game.Blocks),
-      team: game.Team,
-      min: game.Minutes,
-      points: pIntA(game.Points),
-      rfga: pIntA(game.AtRimFGA),
-      date: game.Date,
-      opp: game.Opponent
-    })
-
-
-
-    // initial window
     if (i >= window) {
       winSet = true
     }
   }
-  console.log(rStats)
-  return nData;
+  return nData
 }
 
 const redis = require('redis')
@@ -1401,7 +1135,7 @@ const postTrend = async (data, clean = false) => {
     let jsonN = await client.get(name[0] + '_' + name[1])
     if (cPlayers.includes(property)) {
       const result = await doRequest(
-        'https://api.pbpstats.com/get-game-logs/nba?Season=2021-22&SeasonType=Regular%20Season&EntityType=Player&EntityId=' +
+        'https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16%2C2014-15%2C2013-14&SeasonType=Regular%20Season&EntityType=Player&EntityId=' +
           pID
       )
         console.log(name)
@@ -1482,75 +1216,75 @@ const postTrend = async (data, clean = false) => {
       if (pd) {
         if (pd) {
           if (jsonN) {
-            let obj4 = cjson.decompress.fromString(jsonN)
-            obj4 = obj4.filter(word => word.Date.split('-')[0] !== '2022')
-            pd4 = pd.filter(word => word.Date.split('-')[0] === '2022')
-            newO = obj4.concat(pd4)
-            pd = newO
-            // const compressedString4 = cjson.compress.toString(pd)
-            // await client.set(name[0] + '_' + name[1], compressedString4)
-            // console.log(name[0], name[1], '2022')
+            // let obj4 = cjson.decompress.fromString(jsonN)
+            // obj4 = obj4.filter(word => word.Date.split('-')[0] !== '2022')
+            // pd4 = pd.filter(word => word.Date.split('-')[0] === '2022')
+            // newO = obj4.concat(pd4)
+            // pd = newO
+            const compressedString4 = cjson.compress.toString(pd)
+            await client.set(name[0] + '_' + name[1], compressedString4)
+            console.log(name[0], name[1], '2022')
           }
-          const data = computeRollingShotChart(pd, 5)
-          if (
-            data.length >= 20 &&
-            data[data.length - 1].date.split('-')[0] === '2022'
-          ) {
-            const trend = data.slice(data.length - 1, data.length)
-            const tdat = { [name[0] + ' ' + name[1]]: trend }
-            let obj = {}
-            if (json) {
-              obj = cjson.decompress.fromString(json)
-            }
+        //   const data = computeRollingShotChart(pd, 5)
+        //   if (
+        //     data.length >= 20 &&
+        //     data[data.length - 1].date.split('-')[0] === '2022'
+        //   ) {
+        //     const trend = data.slice(data.length - 1, data.length)
+        //     const tdat = { [name[0] + ' ' + name[1]]: trend }
+        //     let obj = {}
+        //     if (json) {
+        //       obj = cjson.decompress.fromString(json)
+        //     }
 
-            const mergedObject = {
-              ...obj,
-              ...tdat
-            }
-            const compressedString = cjson.compress.toString(mergedObject)
-            await client.set('trend', compressedString)
-            console.log(name[0], name[1], compressedString.length)
-          }
-          const data10 = computeRollingShotChart(pd, 10)
-          if (
-            data10.length >= 20 &&
-            data10[data10.length - 1].date.split('-')[0] === '2022'
-          ) {
-            const trend2 = data10.slice(data10.length - 1, data10.length)
-            const tdat2 = { [name[0] + ' ' + name[1]]: trend2 }
-            let obj2 = {}
-            if (json2) {
-              obj2 = cjson.decompress.fromString(json2)
-            }
+        //     const mergedObject = {
+        //       ...obj,
+        //       ...tdat
+        //     }
+        //     const compressedString = cjson.compress.toString(mergedObject)
+        //     await client.set('trend', compressedString)
+        //     console.log(name[0], name[1], compressedString.length)
+        //   }
+        //   const data10 = computeRollingShotChart(pd, 10)
+        //   if (
+        //     data10.length >= 20 &&
+        //     data10[data10.length - 1].date.split('-')[0] === '2022'
+        //   ) {
+        //     const trend2 = data10.slice(data10.length - 1, data10.length)
+        //     const tdat2 = { [name[0] + ' ' + name[1]]: trend2 }
+        //     let obj2 = {}
+        //     if (json2) {
+        //       obj2 = cjson.decompress.fromString(json2)
+        //     }
 
-            const mergedObject2 = {
-              ...obj2,
-              ...tdat2
-            }
-            const compressedString2 = cjson.compress.toString(mergedObject2)
-            await client.set('trend2', compressedString2)
-            console.log(name[0], name[1], compressedString2.length)
-          }
-          const data20 = computeRollingShotChart(pd, 20)
-          if (
-            data20.length >= 20 &&
-            data20[data20.length - 1].date.split('-')[0] === '2022'
-          ) {
-            const trend3 = data20.slice(data20.length - 1, data20.length)
-            const tdat3 = { [name[0] + ' ' + name[1]]: trend3 }
-            let obj3 = {}
-            if (json3) {
-              obj3 = cjson.decompress.fromString(json3)
-            }
+        //     const mergedObject2 = {
+        //       ...obj2,
+        //       ...tdat2
+        //     }
+        //     const compressedString2 = cjson.compress.toString(mergedObject2)
+        //     await client.set('trend2', compressedString2)
+        //     console.log(name[0], name[1], compressedString2.length)
+        //   }
+        //   const data20 = computeRollingShotChart(pd, 20)
+        //   if (
+        //     data20.length >= 20 &&
+        //     data20[data20.length - 1].date.split('-')[0] === '2022'
+        //   ) {
+        //     const trend3 = data20.slice(data20.length - 1, data20.length)
+        //     const tdat3 = { [name[0] + ' ' + name[1]]: trend3 }
+        //     let obj3 = {}
+        //     if (json3) {
+        //       obj3 = cjson.decompress.fromString(json3)
+        //     }
 
-            const mergedObject3 = {
-              ...obj3,
-              ...tdat3
-            }
-            const compressedString3 = cjson.compress.toString(mergedObject3)
-            await client.set('trend3', compressedString3)
-            console.log(name[0], name[1], compressedString3.length)
-          }
+        //     const mergedObject3 = {
+        //       ...obj3,
+        //       ...tdat3
+        //     }
+        //     const compressedString3 = cjson.compress.toString(mergedObject3)
+        //     await client.set('trend3', compressedString3)
+        //     console.log(name[0], name[1], compressedString3.length)
+        //   }
         }
       }
     }
