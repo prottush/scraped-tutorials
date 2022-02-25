@@ -3,6 +3,7 @@ const Papa = require('papaparse')
 const request = require('request')
 const cjson = require('compressed-json')
 const players = {
+  'Ja Morant': '1629630',
   'LeBron James': '2544',
   'Reggie Bullock': '203493',
   'Jakob Poeltl': '1627751',
@@ -338,7 +339,7 @@ const players = {
   'Mario Chalmers': '201596',
   'David West': '2561',
   'Marquese Chriss': '1627737',
-  'Ja Morant': '1629630',
+  
   'Malik Monk': '1628370',
   'Tim Frazier': '204025',
   'Kevon Looney': '1626172',
@@ -1487,8 +1488,8 @@ const postTrend = async (data, clean = false) => {
             pd4 = pd.filter(word => word.Date.split('-')[0] === '2022')
             newO = obj4.concat(pd4)
             pd = newO
-            // const compressedString4 = cjson.compress.toString(pd)
-            // await client.set(name[0] + '_' + name[1], compressedString4)
+             const compressedString4 = cjson.compress.toString(pd)
+             await client.set(name[0] + '_' + name[1], compressedString4)
             // console.log(name[0], name[1], '2022')
           }
           const data = computeRollingShotChart(pd, 5)
