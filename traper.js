@@ -3,8 +3,14 @@ const Papa = require('papaparse')
 const request = require('request')
 const cjson = require('compressed-json')
 const players = {
-  'Austin Reaves': '1630559',
-    'LeBron James': '2544',
+  'RJ Barrett': '1629628',
+  'LeBron James': '2544',
+  'Steven Adams': '203500',
+  
+    'Tyrese Maxey': '1630178',
+    'Russell Westbrook': '201566',
+    'Devin Vassell': '1630170',
+    
     'Cam Thomas': '1630560',
     'Cole Anthony': '1630175', 
     'Jalen Suggs': '1630591',
@@ -18,7 +24,7 @@ const players = {
   'James Harden': '201935',
   'Andrew Wiggins': '203952',
   'Damian Lillard': '203081',
-  'Russell Westbrook': '201566',
+  'Austin Reaves': '1630559',
   'DeMar DeRozan': '201942',
   'Josh Giddey': '1630581',
   'Evan Mobley': '1630596',
@@ -327,7 +333,7 @@ const players = {
   'Manu Ginobili': '1938',
   'Glenn Robinson III': '203922',
   'Jonathon Simmons': '203613',
-  'RJ Barrett': '1629628',
+  
   'Yogi Ferrell': '1627812',
   'Bruce Brown': '1628971',
   'Omri Casspi': '201956',
@@ -599,6 +605,7 @@ const cPlayers = [
   'Austin Reaves',
   'Nikola Jokic',
   'DeAndre Jordan',
+  'Steven Adams',
   'Reggie Jackson',
   'Rajon Rondo',
   'Dennis Schroder',
@@ -622,6 +629,7 @@ const cPlayers = [
   'Desmond Bane',
   'Seth Curry',
   'Eric Bledsoe',
+  'Devin Vassell',
   'Kyle Lowry',
   'Eric Gordon',
   'Joe Ingles',
@@ -646,6 +654,7 @@ const cPlayers = [
   'Hassan Whiteside',
   'Kentavious Caldwell-Pope',
   'Scottie Barnes',
+  'Tyrese Maxey',
   'Bam Adebayo',
   'Danilo Gallinari',
   'Shai Gilgeous-Alexander',

@@ -3,12 +3,12 @@ const Papa = require('papaparse')
 const request = require('request')
 const cjson = require('compressed-json')
 const players = {
-  'Ja Morant': '1629630',
-  'LeBron James': '2544',
-  'Reggie Bullock': '203493',
-  'Jakob Poeltl': '1627751',
-  'Austin Reaves': '1630559',
-    
+  'Steven Adams': '203500',
+  
+    'Tyrese Maxey': '1630178',
+    'Russell Westbrook': '201566',
+    'Devin Vassell': '1630170',
+      
     'Cam Thomas': '1630560',
     'Cole Anthony': '1630175', 
     'Jalen Suggs': '1630591',
@@ -18,11 +18,12 @@ const players = {
     'Chris Duarte': '1630537',
     'Franz Wagner': '1630532',
 
-  
+  'Jakob Poeltl': '1627751',
   'James Harden': '201935',
   'Andrew Wiggins': '203952',
   'Damian Lillard': '203081',
-  'Russell Westbrook': '201566',
+  'Austin Reaves': '1630559',
+  'LeBron James': '2544',
   'DeMar DeRozan': '201942',
   'Josh Giddey': '1630581',
   'Evan Mobley': '1630596',
@@ -212,7 +213,7 @@ const players = {
   'Bam Adebayo': '1628389',
   'Jarrett Allen': '1628386',
   "Royce O'Neale": '1626220',
-  
+  'Reggie Bullock': '203493',
   'Taurean Prince': '1627752',
   'JR Smith': '2747',
   'Mikal Bridges': '1628969',
@@ -339,7 +340,7 @@ const players = {
   'Mario Chalmers': '201596',
   'David West': '2561',
   'Marquese Chriss': '1627737',
-  
+  'Ja Morant': '1629630',
   'Malik Monk': '1628370',
   'Tim Frazier': '204025',
   'Kevon Looney': '1626172',
@@ -603,6 +604,7 @@ const cPlayers = [
   'Austin Reaves',
   'Nikola Jokic',
   'DeAndre Jordan',
+  'Steven Adams',
   'Reggie Jackson',
   'Rajon Rondo',
   'Dennis Schroder',
@@ -626,6 +628,7 @@ const cPlayers = [
   'Desmond Bane',
   'Seth Curry',
   'Eric Bledsoe',
+  'Devin Vassell',
   'Kyle Lowry',
   'Eric Gordon',
   'Joe Ingles',
@@ -650,6 +653,7 @@ const cPlayers = [
   'Hassan Whiteside',
   'Kentavious Caldwell-Pope',
   'Scottie Barnes',
+  'Tyrese Maxey',
   'Bam Adebayo',
   'Danilo Gallinari',
   'Shai Gilgeous-Alexander',
@@ -790,6 +794,7 @@ const computeRollingShotChart =  (
     'Corner3FGA',
     'Corner3FGM',
     'FoulsDrawn',
+    'Fouls',
     'ShotQualityAvg',
     'OnDefRtg',
     'OnOffRtg',
@@ -1032,7 +1037,8 @@ const computeRollingShotChart =  (
     const appg = (rStats['currAssistPoints'] / (winSet ? window : i)).toFixed(
       2
     )
-
+    const pgs = (((rStats['currPoints']) + (.4 * (rStats['currFG2M'] + rStats['currFG3M'])) + (.7 * rStats['currOffRebounds']) + (.3 *rStats['currDefRebounds']) + (rStats['currSteals']) + (rStats['currAssists'] *.7) + (rStats['currBlocks'] *.7) - (.7* (currFGA - rStats['currFG2M'] - rStats['currFG3M'])) - (.4*(rStats['currFTA']-rStats['currFtPoints'])) - (.4 * rStats['currFouls']) - (.4 * rStats['currLiveBallTurnovers'])) / (winSet ? window : i)
+      ).toFixed(2);  
     const defrpp = (
       (rStats['currDefRebounds'] / rStats['currDefPoss']) *
       75
@@ -1076,6 +1082,7 @@ const computeRollingShotChart =  (
       rsq: ((currRFGM / currRFGA) * 100).toFixed(2),
       gameN: i,
       rimfq: rimfq,
+      pgs: pgs,
       mfq: mfq,
       efg: efg,
       tfq: tfq,
@@ -1104,6 +1111,8 @@ const computeRollingShotChart =  (
         avapp: ((rStats['totAssists'] / rStats['totOffPoss']) * 75).toFixed(
           2
         ),
+        avpgs: (((rStats['totPoints']) + (.4 * (rStats['totFG2M'] + rStats['totFG3M'])) + (.7 * rStats['totOffRebounds']) + (.3 *rStats['totDefRebounds']) + (rStats['totSteals']) + (rStats['totAssists'] *.7) + (rStats['totBlocks'] *.7) - (.7* (totFGA - rStats['totFG2M'] - rStats['totFG3M'])) - (.4*(rStats['totFTA']-rStats['totFtPoints'])) - (.4 * rStats['totFouls']) - (.4 * rStats['totLiveBallTurnovers'])) / (data.length)
+          ).toFixed(2),
         avmor: (((rStats['totAtRimFGA'] + rStats['totFG3A'])/(rStats['totFG3A'] + rStats['totFG2A']))*100).toFixed(2),
         avtopp: (
           (rStats['totLiveBallTurnovers'] / rStats['totOffPoss']) *
@@ -1486,10 +1495,10 @@ const postTrend = async (data, clean = false) => {
             let obj4 = cjson.decompress.fromString(jsonN)
             obj4 = obj4.filter(word => word.Date.split('-')[0] !== '2022')
             pd4 = pd.filter(word => word.Date.split('-')[0] === '2022')
-            newO = obj4.concat(pd4)
-            pd = newO
-             const compressedString4 = cjson.compress.toString(pd)
-             await client.set(name[0] + '_' + name[1], compressedString4)
+            newO = obj4.concat(pd4);
+            pd = newO;
+            const compressedString4 = cjson.compress.toString(pd)
+            await client.set(name[0] + '_' + name[1], compressedString4)
             // console.log(name[0], name[1], '2022')
           }
           const data = computeRollingShotChart(pd, 5)
