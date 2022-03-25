@@ -3,6 +3,9 @@ const Papa = require('papaparse')
 const request = require('request')
 const cjson = require('compressed-json')
 const players = {
+  'Immanuel Quickley': '1630193',
+  'Obi Toppin': '1630167',
+  'Quentin Grimes': '1629656',
   'RJ Barrett': '1629628',
   'LeBron James': '2544',
   'Steven Adams': '203500',
@@ -529,6 +532,9 @@ const players = {
 }
 
 const cPlayers = [
+  'Immanuel Quickley',
+  'Obi Toppin',
+  'Quentin Grimes',
   'Andrew Wiggins',
   'Cam Thomas',
     'Cole Anthony', 

@@ -55,7 +55,7 @@
 
 // const scrapePBPTOT = async (data, key) => {
 //     const client = redis.createClient({
-//         url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739",
+//         url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
 //         socket: {
 //             tls: true,
 //             rejectUnauthorized: false,
