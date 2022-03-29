@@ -1083,6 +1083,50 @@ const computeRollingShotChart =  (
     const ua3pg = (
       rStats['currPtsUnassisted3s'] / (winSet ? window : i)
     ).toFixed(2)
+
+    const sectionOne = Math.exp(
+      -1 *
+        (((rStats['currFG3A'] / rStats['currOffPoss']) * 75 * 100) /
+          (((currM / rStats['currOffPoss']) * 75 * 96) / 48 + 500))
+    )
+    const sectionTwo =
+      (rStats['currFG3M'] / rStats['currFG3A']) *
+      (2 / (1 + sectionOne) - 1)
+
+    const bc =
+      ((parseFloat(app) * 4) / 3) * 0.1843 +
+      (parseFloat(topp) + (parseFloat(ppp) * 4) / 3) * 0.0969 -
+      2.3021 * sectionTwo +
+      0.0582 *
+        ((parseFloat(app) * 4) / 3) *
+        (parseFloat(topp) + (parseFloat(ppp) * 4) / 3) *
+        sectionTwo -
+      1.1942
+
+      const sectionO = Math.exp(
+        -1 *
+          (((rStats['totFG3A'] / rStats['totOffPoss']) * 75 * 100) /
+            (((currM / rStats['totOffPoss']) * 75 * 96) / 48 + 500))
+      )
+      const sectionT =
+        (rStats['totFG3M'] / rStats['totFG3A'])  *
+        (2 / (1 + sectionO) - 1)
+
+      const avbc =
+        ((parseFloat((rStats['totAssists'] / rStats['totOffPoss']) * 75) *
+          4) /
+          3) *
+          0.1843 +
+        ((rStats['totLiveBallTurnovers'] / rStats['totOffPoss']) * 75 +
+          ((rStats['totPoints'] / rStats['totOffPoss']) * 75 * 4) / 3) *
+          0.0969 -
+        2.3021 * sectionT +
+        0.0582 *
+          (((rStats['totAssists'] / rStats['totOffPoss']) * 75 * 4) / 3) *
+          ((rStats['totLiveBallTurnovers'] / rStats['totOffPoss']) * 75 +
+            ((rStats['totPoints'] / rStats['totOffPoss']) * 75 * 4) / 3) *
+          sectionT -
+        1.1942
     
     const mor= (((rStats['currAtRimFGA'] + rStats['currFG3A'])/(rStats['currFG3A'] + rStats['currFG2A']))*100).toFixed(2)
     nData.push({
@@ -1091,6 +1135,7 @@ const computeRollingShotChart =  (
       rimfq: rimfq,
       pgs: pgs,
       mfq: mfq,
+      bc: bc.toFixed(2),
       efg: efg,
       tfq: tfq,
       rtpd: rtpd,
@@ -1146,6 +1191,7 @@ const computeRollingShotChart =  (
             (rStats['totShortMidRangeFGA'] + rStats['totLongMidRangeFGA'])) *
           100
         ).toFixed(2),
+        avbc: avbc.toFixed(2),
         avappp: (
           (rStats['totAssistPoints'] / rStats['totOffPoss']) *
           75
@@ -1316,7 +1362,7 @@ function doRequest (url) {
 const getTeamProf = async () => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -1341,7 +1387,7 @@ const getTeamProf = async () => {
 const getTeamDProf = async () => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -1366,7 +1412,7 @@ const getTeamDProf = async () => {
 const getKeyCache = async key => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -1391,7 +1437,7 @@ const getKeyCache = async key => {
 const postTrend = async (data, clean = false) => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -1683,7 +1729,7 @@ const scrapePBPTOT = async (fname, lname, hard = 'soft') => {
 const scrapePBPTOTTeam = async (team, type = 'Team', hard = 'soft') => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -1729,7 +1775,7 @@ const scrapePBPTOTTeam = async (team, type = 'Team', hard = 'soft') => {
 const scrapeMedium = async (fname, lname, hard = 'soft') => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-54-147-216-178.compute-1.amazonaws.com:19739',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059',
     socket: {
       tls: true,
       rejectUnauthorized: false
