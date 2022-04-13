@@ -562,7 +562,7 @@ function doRequest(url) {
 
 const getTeamProf = async () => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-193-178-89.compute-1.amazonaws.com:15379",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -600,7 +600,7 @@ const getTeamProf = async () => {
 
 const getTeamDProf = async () => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-193-178-89.compute-1.amazonaws.com:15379",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -638,7 +638,7 @@ const getTeamDProf = async () => {
 
 const getKeyCache = async (key) => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-193-178-89.compute-1.amazonaws.com:15379",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -677,7 +677,7 @@ const getKeyCache = async (key) => {
 const postTrend = async (data) => {
 
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-193-178-89.compute-1.amazonaws.com:15379",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -725,7 +725,7 @@ const postTrend = async (data) => {
 
 const scrapePBPTOT = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-193-178-89.compute-1.amazonaws.com:15379",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -854,7 +854,7 @@ const scrapePBPTOT = async (fname, lname, hard="soft") => {
 
 const scrapePBPTOTTeam = async (team, type="Team", hard="soft") => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-193-178-89.compute-1.amazonaws.com:15379",
     socket: {
       tls: true,
       rejectUnauthorized: false,
@@ -906,7 +906,7 @@ const scrapePBPTOTTeam = async (team, type="Team", hard="soft") => {
 
 const scrapeMedium = async (fname, lname, hard="soft") => {
   const client = redis.createClient({
-    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-194-23-208.compute-1.amazonaws.com:28059",
+    url: "redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-193-178-89.compute-1.amazonaws.com:15379",
     socket: {
       tls: true,
       rejectUnauthorized: false,
