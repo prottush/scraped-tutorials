@@ -1465,7 +1465,7 @@ const postTrend = async (data, clean = false) => {
     let jsonN = await client.get(name[0] + '_' + name[1])
     if (cPlayers.includes(property)) {
       const result = await doRequest(
-        'https://api.pbpstats.com/get-game-logs/nba?Season=2021-22&SeasonType=All%20Season&EntityType=Player&EntityId=' +
+        'https://api.pbpstats.com/get-game-logs/nba?Season=2021-22&SeasonType=All&EntityType=Player&EntityId=' +
           pID
       )
         console.log(name)
