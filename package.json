@@ -7,6 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
+  "engines" : { 
+    "node" : ">=17.3.1"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -20,9 +23,6 @@
     "node-cron": "^3.0.0",
     "papaparse": "^5.3.1",
     "pug": "^2.0.3",
-    "puppeteer": "^1.8.0",
-    "puppeteer-extra": "^3.2.3",
-    "puppeteer-extra-plugin-stealth": "^2.9.0",
     "redis": "^4.0.2",
     "request": "^2.88.2"
   }
