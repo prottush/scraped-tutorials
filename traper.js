@@ -2,6 +2,7 @@ const Papa = require('papaparse')
 const request = require('request')
 const cjson = require('compressed-json')
 const players = {
+  "Stephen Curry": "201939",
   "LeBron James": "2544",
   "Tre Mann": "1630544",
   "Grant Long": "3",
@@ -1053,7 +1054,7 @@ const players = {
   "Tyreke Evans": "201936",
   "Ricky Rubio": "201937",
   "Jonny Flynn": "201938",
-  "Stephen Curry": "201939",
+  
   "Jordan Hill": "201941",
   "DeMar DeRozan": "201942",
   "Brandon Jennings": "201943",
@@ -2709,7 +2710,7 @@ function doRequest (url) {
 const getTeamProf = async () => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-205-57-215.compute-1.amazonaws.com:10189',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-35-171-118-6.compute-1.amazonaws.com:13819',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -2734,7 +2735,7 @@ const getTeamProf = async () => {
 const getTeamDProf = async () => {
   const client = redis.createClient({
     url:
-       'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-205-57-215.compute-1.amazonaws.com:10189',
+       'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-35-171-118-6.compute-1.amazonaws.com:13819',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -2759,7 +2760,7 @@ const getTeamDProf = async () => {
 const getKeyCache = async key => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-205-57-215.compute-1.amazonaws.com:10189',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-35-171-118-6.compute-1.amazonaws.com:13819',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -2784,7 +2785,7 @@ const getKeyCache = async key => {
 const postTrend = async (data, clean = false) => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-205-57-215.compute-1.amazonaws.com:10189',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-35-171-118-6.compute-1.amazonaws.com:13819',
     socket: {
       tls: true,
       rejectUnauthorized: false
@@ -2811,7 +2812,7 @@ const postTrend = async (data, clean = false) => {
     let jsonN = await client.get(name[0] + '_' + name[1])
     if (true) {
       const result = await doRequest(
-        'https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16%2C2014-15%2C2013-14&SeasonType=Regular%20Season&EntityType=Player&EntityId=' +
+        'https://api.pbpstats.com/get-game-logs/nba?Season=2021-22%2C2020-21%2C2019-20%2C2018-19%2C2017-18%2C2016-17%2C2015-16%2C2014-15%2C2013-14&SeasonType=All&EntityType=Player&EntityId=' +
           pID
       )
         console.log(name)
@@ -3076,7 +3077,7 @@ const scrapePBPTOT = async (fname, lname, hard = 'soft') => {
 const scrapePBPTOTTeam = async (team, type = 'Team', hard = 'soft') => {
   const client = redis.createClient({
     url:
-      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-44-205-57-215.compute-1.amazonaws.com:10189',
+      'redis://:p1aec2448c6cc8395f111ebaefbd5e52d9f19ed4fb6af0d09d44e2b93271090ee@ec2-35-171-118-6.compute-1.amazonaws.com:13819',
     socket: {
       tls: true,
       rejectUnauthorized: false
